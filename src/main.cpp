@@ -20,7 +20,9 @@
 #include <csignal>
 #include <cstdlib>
 #include <atomic>
-#include <filesystem>
+#ifdef _WIN32
+#include <conio.h>
+#endif
 
 // Core modules
 #include "common/Types.hpp"
@@ -64,6 +66,7 @@ static std::atomic<bool> g_running{true};
  * @brief Signal handler for Ctrl+C (SIGINT) - graceful shutdown
  */
 void signalHandler(int signum) {
+    (void)signum; // Suppress unused parameter warning
     std::cout << "\n\n[SYSTEM] Received shutdown signal (SIGINT)...\n";
     std::cout << "[SYSTEM] Initiating graceful shutdown...\n";
     g_running.store(false);
@@ -129,8 +132,19 @@ int main() {
         std::cout << "[INIT] Loading driver profile...\n";
         
         DriverProfile activeProfile;
+        std::vector<std::string> availableProfiles = {"eco_mode", "sport_mode", "comfort_mode"};
+        int currentProfileIdx = 0;
+
+        // Try to find active profile in list to set initial index
         std::string profileName = config.getActiveProfile();
-        std::string profilePath = dataDir + "/driver_profiles/" + profileName + ".json";
+        for (size_t i = 0; i < availableProfiles.size(); ++i) {
+            if (availableProfiles[i] == profileName) {
+                currentProfileIdx = i;
+                break;
+            }
+        }
+
+        std::string profilePath = dataDir + "/driver_profiles/" + availableProfiles[currentProfileIdx] + ".json";
         
         if (activeProfile.loadProfile(profilePath)) {
             std::cout << "[INIT] Loaded profile: " << activeProfile.getName() << "\n";
@@ -138,7 +152,7 @@ int main() {
             std::cout << "  Temp Warning: " << activeProfile.getEngineTempWarning() << " C\n";
             std::cout << "  Temp Critical: " << activeProfile.getEngineTempCritical() << " C\n";
         } else {
-            std::cout << "[WARN] Could not load profile '" << profileName 
+            std::cout << "[WARN] Could not load profile '" << availableProfiles[currentProfileIdx] 
                       << "', using defaults.\n";
         }
 
@@ -223,9 +237,29 @@ int main() {
         // Start all 4 worker threads
         threadManager.start();
 
-        // ===== Main Loop (waits for shutdown signal) =====
+        // ===== Main Loop (waits for shutdown signal + keyboard input) =====
         while (g_running.load()) {
-            Utils::sleepMs(500);
+            // Poll for 500ms in 50ms increments to allow responsive keyboard input
+            for (int i = 0; i < 10 && g_running.load(); ++i) {
+                Utils::sleepMs(50);
+#ifdef _WIN32
+                if (_kbhit()) {
+                    char c = _getch();
+                    if (c == 'p' || c == 'P') {
+                        // Cycle profile
+                        currentProfileIdx = (currentProfileIdx + 1) % availableProfiles.size();
+                        std::string newProfName = availableProfiles[currentProfileIdx];
+                        std::string newPath = dataDir + "/driver_profiles/" + newProfName + ".json";
+                        
+                        DriverProfile newProfile;
+                        if (newProfile.loadProfile(newPath)) {
+                            threadManager.updateProfile(newProfile);
+                            logger.logEvent(AlertSeverity::INFO, "Switched to profile: " + newProfName, "SYSTEM");
+                        }
+                    }
+                }
+#endif
+            }
             
             // Check if threads are still running
             if (!threadManager.isRunning()) {

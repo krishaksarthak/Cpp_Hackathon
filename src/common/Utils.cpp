@@ -22,8 +22,18 @@ double getRandomDouble(double min, double max) {
     return dis(gen);
 }
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+
 void sleepMs(int milliseconds) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds));
+#ifdef _WIN32
+    Sleep(milliseconds);
+#else
+    usleep(milliseconds * 1000);
+#endif
 }
 
 std::string timestampToString(const std::chrono::system_clock::time_point& tp) {

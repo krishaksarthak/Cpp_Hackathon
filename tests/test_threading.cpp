@@ -71,7 +71,7 @@ void testWatchdog() {
         wd.heartbeat("SlowThread");
         
         // Wait for timeout
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        VehicleSystem::Utils::sleepMs(200);
         
         // Send heartbeat for only one
         wd.heartbeat("FastThread");
@@ -309,7 +309,7 @@ void testThreadSafety() {
                 std::string name = "T" + std::to_string(i);
                 for (int j = 0; j < 100; ++j) {
                     wd.heartbeat(name);
-                    std::this_thread::sleep_for(std::chrono::microseconds(100));
+                    VehicleSystem::Utils::sleepMs(1);
                 }
             });
         }

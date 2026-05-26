@@ -17,48 +17,30 @@ namespace VehicleSystem {
  * Demonstrates: Inheritance, pure virtual functions, virtual destructor,
  * RAII (sensor count), static members, copy/move semantics.
  * Maps to MCAL (Microcontroller Abstraction Layer) in AUTOSAR.
+ * 
+ * @author Member 1 (Architecture Lead)
  */
 class Sensor {
 public:
     /**
      * @brief Construct a new Sensor object (RAII - increments count)
      */
-    Sensor(SensorID id, const std::string& name, SensorType type)
-        : m_id(id), m_name(name), m_type(type), m_currentValue(0.0),
-          m_lastUpdateTime(std::chrono::system_clock::now()), m_healthy(true),
-          m_updateCount(0) {
-        ++s_sensorCount;
-    }
+    Sensor(SensorID id, const std::string& name, SensorType type);
 
     /**
      * @brief Copy constructor (demonstrates copy semantics)
      */
-    Sensor(const Sensor& other)
-        : m_id(other.m_id), m_name(other.m_name), m_type(other.m_type),
-          m_currentValue(other.m_currentValue),
-          m_lastUpdateTime(other.m_lastUpdateTime), m_healthy(other.m_healthy),
-          m_updateCount(other.m_updateCount) {
-        ++s_sensorCount;
-    }
+    Sensor(const Sensor& other);
 
     /**
      * @brief Move constructor (demonstrates move semantics)
      */
-    Sensor(Sensor&& other) noexcept
-        : m_id(other.m_id), m_name(std::move(other.m_name)), m_type(other.m_type),
-          m_currentValue(other.m_currentValue),
-          m_lastUpdateTime(other.m_lastUpdateTime), m_healthy(other.m_healthy),
-          m_updateCount(other.m_updateCount) {
-        other.m_healthy = false;
-        // Note: don't change s_sensorCount since moved-from object still exists
-    }
+    Sensor(Sensor&& other) noexcept;
 
     /**
      * @brief Virtual destructor (RAII - decrements count)
      */
-    virtual ~Sensor() {
-        --s_sensorCount;
-    }
+    virtual ~Sensor();
 
     // --- Pure Virtual Functions (derived classes MUST implement) ---
 
@@ -83,17 +65,7 @@ public:
     // --- Concrete Methods ---
 
     /** @brief Template method: performs update and records metadata */
-    void performUpdate() {
-        try {
-            update();
-            m_lastUpdateTime = std::chrono::system_clock::now();
-            ++m_updateCount;
-            m_healthy = true;
-        } catch (const std::exception& e) {
-            m_healthy = false;
-            throw;  // Re-throw for caller to handle
-        }
-    }
+    void performUpdate();
 
     SensorID getId() const { return m_id; }
     std::string getName() const { return m_name; }
@@ -103,12 +75,10 @@ public:
     uint64_t getUpdateCount() const { return m_updateCount; }
 
     /** @brief Get status string for dashboard display */
-    std::string getStatusString() const {
-        return m_healthy ? "ONLINE" : "OFFLINE";
-    }
+    std::string getStatusString() const;
 
     // --- Static Members ---
-    static int getSensorCount() { return s_sensorCount; }
+    static int getSensorCount();
 
 protected:
     SensorID m_id;

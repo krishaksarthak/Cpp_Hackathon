@@ -35,6 +35,7 @@ A production-grade automotive cockpit ECU simulation implementing:
 ---
 
 ## 🏗️ Architecture
+```
 ┌────────────────────────────────────────┐
 │     Smart Vehicle Application          │
 ├────────────────────────────────────────┤
@@ -57,6 +58,7 @@ A production-grade automotive cockpit ECU simulation implementing:
 │  │   Thread Manager + Watchdog     │   │
 │  └─────────────────────────────────┘   │
 └────────────────────────────────────────┘
+```
 
 ---
 
@@ -77,28 +79,25 @@ sudo apt-get install nlohmann-json3-dev  # Ubuntu/Debian
 
 ### Build & Run
 
-**Option 1: Using build script**
+**Windows Environment (MinGW GCC):**
+Simply double-click the `run.bat` file in the root directory, or run it via the terminal:
+```cmd
+.\run.bat
+```
+*(This all-in-one script automatically configures CMake, builds the project with `mingw32-make`, runs all unit tests via `ctest`, and launches the application dashboard.)*
+
+**Linux/Mac Environment:**
 ```bash
-chmod +x build.sh run.sh
-./build.sh
+chmod +x run.sh
 ./run.sh
 ```
 
-**Option 2: Manual CMake**
-```bash
+**Manual Build (CMake):**
+```cmd
 mkdir build && cd build
-cmake ..
-make
-./VehicleMonitoringSystem
-```
-
-**Option 3: Direct compilation**
-```bash
-g++ -std=c++17 -pthread \
-    src/**/*.cpp src/main.cpp \
-    -Iinclude \
-    -o vehicle_system
-./vehicle_system
+cmake -G "MinGW Makefiles" ..
+mingw32-make -j4
+VehicleMonitoringSystem.exe
 ```
 
 ---
@@ -123,26 +122,30 @@ g++ -std=c++17 -pthread \
 ### 🌟 Bonus Features
 - [x] JSON configuration management
 - [x] Driver profile system (Eco/Sport/Comfort)
+- [x] Real-Time Interactive Profile Switching ('p' hotkey)
 - [x] Vehicle statistics dashboard
 - [x] DTC (Diagnostic Trouble Code) system
 - [x] Watchdog health monitor
-- [x] Crash-safe logging
+- [x] Crash-safe segregated logging
 - [x] Runtime config reload
 
 ---
 
 ## 🧪 Testing
 
-```bash
-# Run unit tests
-./scripts/run_tests.sh
+We provide an exhaustive automated test suite (47+ assertions) covering system bounds, logic edge cases, concurrency, and file system crash-recoveries.
 
-# Check for memory leaks
-./scripts/check_memory_leaks.sh
-
-# Format code
-./scripts/format_code.sh
+**Run All Edge Cases & Unit Tests (Windows):**
+```cmd
+.\testcases\run_all_tests.bat
 ```
+
+**What this script does:**
+1. **Clean Recompilation:** Compiles the project from scratch.
+2. **Smoke Test:** Boots the application and ensures it doesn't crash on startup.
+3. **Programmatic Edge Cases:** Executes `test_sensors.exe`, `test_alerts.exe`, and `test_threading.exe` to evaluate bounds and logic.
+4. **File System Crash Tests:** Dynamically deletes critical runtime files (like `config.json` and `driver_profiles`) to verify the Watchdog and parsers gracefully fallback to defaults rather than causing a fatal exception.
+5. **Report Generation:** Summarizes the pass/fail rate into a `testcases/test_results_<timestamp>.log` file.
 
 ---
 
@@ -154,11 +157,12 @@ g++ -std=c++17 -pthread \
 ./run.sh
 ```
 
-### Scenario 2: Profile Switching
+### Scenario 2: Real-Time Profile Switching
 ```bash
-# Switch to Sport mode (lower thresholds)
-# Edit data/config.json → "active_profile": "sport_mode"
+# Launch the dashboard normally
 ./run.sh
+# Press 'p' continuously to hot-swap dynamically between Eco, Sport, and Comfort modes!
+# The limits will adapt in real-time and the console will colorize.
 ```
 
 ### Scenario 3: Alert Generation

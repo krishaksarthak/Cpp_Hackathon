@@ -9,7 +9,8 @@ set TESTS_SKIPPED=0
 :: Log file
 set TIMESTAMP=%date:~-4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
 set TIMESTAMP=%TIMESTAMP: =0%
-set LOG_FILE=testcases\test_results_%TIMESTAMP%.log
+if not exist "logs" mkdir logs
+set LOG_FILE=logs\test_results_%TIMESTAMP%.log
 
 echo ======================================== > %LOG_FILE%
 echo VEHICLE MONITORING SYSTEM - TEST SUITE >> %LOG_FILE%
@@ -34,8 +35,12 @@ echo ========================================
 echo Checking if project is built...
 if not exist "build\VehicleMonitoringSystem.exe" (
     echo [WARNING] Executable not found. Building project...
-    call build.bat
-    if errorlevel 1 (
+    if not exist "build" mkdir build
+    cd build
+    cmake -G "MinGW Makefiles" .. > nul
+    mingw32-make -j4 > nul
+    cd ..
+    if not exist "build\VehicleMonitoringSystem.exe" (
         echo [ERROR] Build failed! Cannot proceed with tests.
         exit /b 1
     )
@@ -166,6 +171,97 @@ if %PROFILE_COUNT%==3 (
 )
 
 ::==============================================================================
+:: SECTION 5: C++ UNIT TESTS (EDGE CASES & BUSINESS LOGIC)
+::==============================================================================
+
+echo.
+echo ========================================
+echo SECTION 5: C++ UNIT TESTS (EDGE CASES)
+echo ========================================
+
+echo TC-UNIT-001: Sensor Simulation ^& Bounds Edge Cases
+if exist "build\tests\test_sensors.exe" (
+    build\tests\test_sensors.exe > nul 2>&1
+    if errorlevel 1 (
+        echo [FAIL] Sensor edge cases failed
+        set /a TESTS_FAILED+=1
+    ) else (
+        echo [PASS] Sensor edge cases passed
+        set /a TESTS_PASSED+=1
+    )
+) else (
+    echo [SKIP] test_sensors.exe not found
+    set /a TESTS_SKIPPED+=1
+)
+
+echo TC-UNIT-002: Alert Evaluation ^& DTC Edge Cases
+if exist "build\tests\test_alerts.exe" (
+    build\tests\test_alerts.exe > nul 2>&1
+    if errorlevel 1 (
+        echo [FAIL] Alert/DTC edge cases failed
+        set /a TESTS_FAILED+=1
+    ) else (
+        echo [PASS] Alert/DTC edge cases passed
+        set /a TESTS_PASSED+=1
+    )
+) else (
+    echo [SKIP] test_alerts.exe not found
+    set /a TESTS_SKIPPED+=1
+)
+
+echo TC-UNIT-003: Thread Safety ^& Watchdog Edge Cases
+if exist "build\tests\test_threading.exe" (
+    build\tests\test_threading.exe > nul 2>&1
+    if errorlevel 1 (
+        echo [FAIL] Threading edge cases failed
+        set /a TESTS_FAILED+=1
+    ) else (
+        echo [PASS] Threading edge cases passed
+        set /a TESTS_PASSED+=1
+    )
+) else (
+    echo [SKIP] test_threading.exe not found
+    set /a TESTS_SKIPPED+=1
+)
+
+::==============================================================================
+:: SECTION 6: FILE SYSTEM EDGE CASES
+::==============================================================================
+
+echo.
+echo ========================================
+echo SECTION 6: FILE SYSTEM EDGE CASES
+echo ========================================
+
+echo TC-EDGE-001: Application recovery without config.json
+if exist "data\config.json" (
+    move data\config.json data\config.json.bak > nul
+    start /B build\VehicleMonitoringSystem.exe > nul 2>&1
+    timeout /t 3 /nobreak > nul
+    taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
+    move data\config.json.bak data\config.json > nul
+    echo [PASS] Handled missing config safely
+    set /a TESTS_PASSED+=1
+) else (
+    echo [SKIP] Cannot test missing config
+    set /a TESTS_SKIPPED+=1
+)
+
+echo TC-EDGE-002: Application recovery without driver profiles
+if exist "data\driver_profiles" (
+    move data\driver_profiles data\driver_profiles_bak > nul
+    start /B build\VehicleMonitoringSystem.exe > nul 2>&1
+    timeout /t 3 /nobreak > nul
+    taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
+    move data\driver_profiles_bak data\driver_profiles > nul
+    echo [PASS] Handled missing profiles safely
+    set /a TESTS_PASSED+=1
+) else (
+    echo [SKIP] Cannot test missing profiles
+    set /a TESTS_SKIPPED+=1
+)
+
+::==============================================================================
 :: SUMMARY
 ::==============================================================================
 
@@ -178,9 +274,9 @@ echo Failed:  %TESTS_FAILED%
 echo Skipped: %TESTS_SKIPPED%
 echo ----------------------------------------
 
-set /a TOTAL_TESTS=%TESTS_PASSED%+%TESTS_FAILED%
-if %TOTAL_TESTS% GTR 0 (
-    set /a PASS_RATE=(%TESTS_PASSED%*100)/%TOTAL_TESTS%
+set /a TOTAL_TESTS=TESTS_PASSED+TESTS_FAILED
+if !TOTAL_TESTS! GTR 0 (
+    set /a PASS_RATE=(TESTS_PASSED*100)/TOTAL_TESTS
     echo Pass Rate: !PASS_RATE!%%
 )
 

@@ -3,7 +3,6 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <variant>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -22,63 +21,95 @@ class JsonValue {
 public:
     using Object = std::map<std::string, JsonValue>;
     using Array = std::vector<JsonValue>;
-    using Value = std::variant<std::nullptr_t, bool, int, double, std::string, Array, Object>;
+    enum class Type { Null, Bool, Int, Double, String, Array, Object };
 
-    JsonValue() : m_value(nullptr) {}
-    JsonValue(std::nullptr_t) : m_value(nullptr) {}
-    JsonValue(bool val) : m_value(val) {}
-    JsonValue(int val) : m_value(val) {}
-    JsonValue(double val) : m_value(val) {}
-    JsonValue(const std::string& val) : m_value(val) {}
-    JsonValue(const char* val) : m_value(std::string(val)) {}
-    JsonValue(const Array& val) : m_value(val) {}
-    JsonValue(const Object& val) : m_value(val) {}
+    JsonValue() : m_type(Type::Null) {}
+    JsonValue(std::nullptr_t) : m_type(Type::Null) {}
+    JsonValue(bool val) : m_type(Type::Bool), m_bool(val) {}
+    JsonValue(int val) : m_type(Type::Int), m_int(val) {}
+    JsonValue(double val) : m_type(Type::Double), m_double(val) {}
+    JsonValue(const std::string& val) : m_type(Type::String), m_string(val) {}
+    JsonValue(const char* val) : m_type(Type::String), m_string(val) {}
+    JsonValue(const Array& val) : m_type(Type::Array) { m_array = new Array(val); }
+    JsonValue(const Object& val) : m_type(Type::Object) { m_object = new Object(val); }
+
+    // Copy semantics needed because of raw pointers
+    JsonValue(const JsonValue& other) : m_type(other.m_type), m_bool(other.m_bool),
+        m_int(other.m_int), m_double(other.m_double), m_string(other.m_string) {
+        if (other.m_array) m_array = new Array(*other.m_array);
+        else m_array = nullptr;
+        if (other.m_object) m_object = new Object(*other.m_object);
+        else m_object = nullptr;
+    }
+
+    JsonValue& operator=(const JsonValue& other) {
+        if (this != &other) {
+            delete m_array; m_array = nullptr;
+            delete m_object; m_object = nullptr;
+            m_type = other.m_type;
+            m_bool = other.m_bool;
+            m_int = other.m_int;
+            m_double = other.m_double;
+            m_string = other.m_string;
+            if (other.m_array) m_array = new Array(*other.m_array);
+            if (other.m_object) m_object = new Object(*other.m_object);
+        }
+        return *this;
+    }
+
+    ~JsonValue() {
+        delete m_array;
+        delete m_object;
+    }
 
     // --- Type checks ---
-    bool isNull() const { return std::holds_alternative<std::nullptr_t>(m_value); }
-    bool isBool() const { return std::holds_alternative<bool>(m_value); }
-    bool isInt() const { return std::holds_alternative<int>(m_value); }
-    bool isDouble() const { return std::holds_alternative<double>(m_value); }
+    bool isNull() const { return m_type == Type::Null; }
+    bool isBool() const { return m_type == Type::Bool; }
+    bool isInt() const { return m_type == Type::Int; }
+    bool isDouble() const { return m_type == Type::Double; }
     bool isNumber() const { return isInt() || isDouble(); }
-    bool isString() const { return std::holds_alternative<std::string>(m_value); }
-    bool isArray() const { return std::holds_alternative<Array>(m_value); }
-    bool isObject() const { return std::holds_alternative<Object>(m_value); }
+    bool isString() const { return m_type == Type::String; }
+    bool isArray() const { return m_type == Type::Array; }
+    bool isObject() const { return m_type == Type::Object; }
 
     // --- Getters ---
-    bool getBool() const { return std::get<bool>(m_value); }
+    bool getBool() const { return m_bool; }
     int getInt() const {
-        if (isInt()) return std::get<int>(m_value);
-        if (isDouble()) return static_cast<int>(std::get<double>(m_value));
+        if (isInt()) return m_int;
+        if (isDouble()) return static_cast<int>(m_double);
         throw std::runtime_error("JSON value is not a number");
     }
     double getDouble() const {
-        if (isDouble()) return std::get<double>(m_value);
-        if (isInt()) return static_cast<double>(std::get<int>(m_value));
+        if (isDouble()) return m_double;
+        if (isInt()) return static_cast<double>(m_int);
         throw std::runtime_error("JSON value is not a number");
     }
-    const std::string& getString() const { return std::get<std::string>(m_value); }
-    const Array& getArray() const { return std::get<Array>(m_value); }
-    const Object& getObject() const { return std::get<Object>(m_value); }
+    const std::string& getString() const { return m_string; }
+    const Array& getArray() const { return *m_array; }
+    const Object& getObject() const { return *m_object; }
 
-    // --- Template getter with default ---
-    template<typename T>
-    T get(const T& defaultVal = T{}) const {
-        try {
-            if constexpr (std::is_same_v<T, bool>) return getBool();
-            else if constexpr (std::is_same_v<T, int>) return getInt();
-            else if constexpr (std::is_same_v<T, double>) return getDouble();
-            else if constexpr (std::is_same_v<T, std::string>) return getString();
-            else return defaultVal;
-        } catch (...) {
-            return defaultVal;
-        }
+    // --- Getters with default ---
+    bool get(bool defaultVal) const {
+        try { return getBool(); } catch (...) { return defaultVal; }
+    }
+    int get(int defaultVal) const {
+        try { return getInt(); } catch (...) { return defaultVal; }
+    }
+    double get(double defaultVal) const {
+        try { return getDouble(); } catch (...) { return defaultVal; }
+    }
+    std::string get(const std::string& defaultVal) const {
+        try { return getString(); } catch (...) { return defaultVal; }
+    }
+    std::string get(const char* defaultVal) const {
+        try { return getString(); } catch (...) { return std::string(defaultVal); }
     }
 
     // --- Object access ---
     const JsonValue& operator[](const std::string& key) const {
         if (!isObject()) throw std::runtime_error("Not a JSON object");
-        auto it = std::get<Object>(m_value).find(key);
-        if (it == std::get<Object>(m_value).end()) {
+        auto it = m_object->find(key);
+        if (it == m_object->end()) {
             static JsonValue nullVal;
             return nullVal;
         }
@@ -87,18 +118,18 @@ public:
 
     bool hasKey(const std::string& key) const {
         if (!isObject()) return false;
-        return std::get<Object>(m_value).count(key) > 0;
+        return m_object->count(key) > 0;
     }
 
     // --- Array access ---
     const JsonValue& operator[](size_t index) const {
         if (!isArray()) throw std::runtime_error("Not a JSON array");
-        return std::get<Array>(m_value).at(index);
+        return m_array->at(index);
     }
 
     size_t size() const {
-        if (isArray()) return std::get<Array>(m_value).size();
-        if (isObject()) return std::get<Object>(m_value).size();
+        if (isArray()) return m_array->size();
+        if (isObject()) return m_object->size();
         return 0;
     }
 
@@ -119,7 +150,13 @@ public:
     }
 
 private:
-    Value m_value;
+    Type m_type;
+    bool m_bool = false;
+    int m_int = 0;
+    double m_double = 0.0;
+    std::string m_string;
+    Array* m_array = nullptr;
+    Object* m_object = nullptr;
 
     static void skipWhitespace(const std::string& s, size_t& pos) {
         while (pos < s.size() && (s[pos] == ' ' || s[pos] == '\t' ||

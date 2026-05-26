@@ -74,9 +74,7 @@ struct DiagnosticTroubleCode {
  */
 class DTCManager {
 public:
-    DTCManager() {
-        initializeDTCMappings();
-    }
+    DTCManager();
 
     ~DTCManager() = default;
 
@@ -93,141 +91,36 @@ public:
      */
     void generateDTC(const Alert& alert,
                      const std::vector<std::unique_ptr<Sensor>>& sensors,
-                     const std::string& activeProfile) {
-        std::lock_guard<std::mutex> lock(m_mutex);
-
-        std::string dtcCode = mapAlertToDTC(alert);
-        if (dtcCode.empty()) return;
-
-        // Check if DTC already exists (increment count)
-        auto it = std::find_if(m_activeDTCs.begin(), m_activeDTCs.end(),
-            [&dtcCode](const DiagnosticTroubleCode& dtc) {
-                return dtc.code == dtcCode && dtc.active;
-            });
-
-        if (it != m_activeDTCs.end()) {
-            it->occurrenceCount++;
-            it->lastOccurrence = std::chrono::system_clock::now();
-            return;
-        }
-
-        // Create new DTC with freeze frame
-        DiagnosticTroubleCode dtc;
-        dtc.code = dtcCode;
-        dtc.description = getDTCDescription(dtcCode);
-        dtc.severity = alert.getSeverity();
-        dtc.category = getDTCCategory(dtcCode);
-        dtc.active = true;
-
-        // Capture freeze frame (snapshot of all sensors)
-        dtc.freezeFrame.timestamp = std::chrono::system_clock::now();
-        dtc.freezeFrame.activeProfile = activeProfile;
-        for (const auto& sensor : sensors) {
-            dtc.freezeFrame.sensorValues[sensor->getType()] = sensor->getValue();
-            if (sensor->getType() == SensorType::VEHICLE_SPEED)
-                dtc.freezeFrame.vehicleSpeed = sensor->getValue();
-            if (sensor->getType() == SensorType::ENGINE_TEMPERATURE)
-                dtc.freezeFrame.engineTemp = sensor->getValue();
-            if (sensor->getType() == SensorType::BATTERY_VOLTAGE)
-                dtc.freezeFrame.batteryVoltage = sensor->getValue();
-        }
-
-        m_activeDTCs.push_back(dtc);
-        m_dtcHistory.push_back(dtc);
-    }
+                     const std::string& activeProfile);
 
     /** @brief Get all active DTCs */
-    std::vector<DiagnosticTroubleCode> getActiveDTCs() const {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        return m_activeDTCs;
-    }
+    std::vector<DiagnosticTroubleCode> getActiveDTCs() const;
 
     /** @brief Get full DTC history */
-    std::vector<DiagnosticTroubleCode> getDTCHistory() const {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        return m_dtcHistory;
-    }
+    std::vector<DiagnosticTroubleCode> getDTCHistory() const;
 
     /** @brief Clear a specific DTC by code */
-    void clearDTC(const std::string& code) {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        m_activeDTCs.erase(
-            std::remove_if(m_activeDTCs.begin(), m_activeDTCs.end(),
-                [&code](const DiagnosticTroubleCode& dtc) { return dtc.code == code; }),
-            m_activeDTCs.end());
-    }
+    void clearDTC(const std::string& code);
 
     /** @brief Clear all active DTCs */
-    void clearAllDTCs() {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        // Mark all as inactive in history before clearing
-        for (auto& dtc : m_activeDTCs) {
-            dtc.active = false;
-        }
-        m_activeDTCs.clear();
-    }
+    void clearAllDTCs();
 
     /** @brief Get count of active DTCs */
-    size_t getActiveDTCCount() const {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        return m_activeDTCs.size();
-    }
+    size_t getActiveDTCCount() const;
 
     /** @brief Get formatted DTC list for display */
-    std::string getFormattedDTCList() const {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        if (m_activeDTCs.empty()) return "No active DTCs";
-        std::ostringstream oss;
-        for (const auto& dtc : m_activeDTCs) {
-            oss << dtc.format() << "\n";
-        }
-        return oss.str();
-    }
+    std::string getFormattedDTCList() const;
 
 private:
     /** @brief Initialize the mapping from alert types to DTC codes */
-    void initializeDTCMappings() {
-        m_alertToDTCMap["ENGINE OVERHEAT"] = "P0217";
-        m_alertToDTCMap["LOW BATTERY"] = "P0562";
-        m_alertToDTCMap["LOW TIRE PRESSURE"] = "C0035";
-        m_alertToDTCMap["OVERSPEED"] = "P0128";
-        m_alertToDTCMap["DOOR OPEN WARNING"] = "B0001";
-        m_alertToDTCMap["SEATBELT WARNING"] = "U0001";
-
-        m_dtcDescriptions["P0217"] = "Engine Coolant Over Temperature Condition";
-        m_dtcDescriptions["P0562"] = "System Voltage Low";
-        m_dtcDescriptions["P0128"] = "Coolant Thermostat Temperature Below Regulating Temperature";
-        m_dtcDescriptions["C0035"] = "Left Front Wheel Speed Sensor Circuit";
-        m_dtcDescriptions["B0001"] = "Driver Airbag Circuit Short to Ground";
-        m_dtcDescriptions["U0001"] = "High Speed CAN Communication Bus";
-
-        m_dtcCategories["P0217"] = "Powertrain";
-        m_dtcCategories["P0562"] = "Electrical";
-        m_dtcCategories["P0128"] = "Powertrain";
-        m_dtcCategories["C0035"] = "Chassis";
-        m_dtcCategories["B0001"] = "Body";
-        m_dtcCategories["U0001"] = "Network";
-    }
+    void initializeDTCMappings();
 
     /** @brief Map an alert message to a DTC code */
-    std::string mapAlertToDTC(const Alert& alert) const {
-        for (const auto& [prefix, code] : m_alertToDTCMap) {
-            if (alert.getMessage().find(prefix) != std::string::npos) {
-                return code;
-            }
-        }
-        return "";
-    }
+    std::string mapAlertToDTC(const Alert& alert) const;
 
-    std::string getDTCDescription(const std::string& code) const {
-        auto it = m_dtcDescriptions.find(code);
-        return it != m_dtcDescriptions.end() ? it->second : "Unknown DTC";
-    }
+    std::string getDTCDescription(const std::string& code) const;
 
-    std::string getDTCCategory(const std::string& code) const {
-        auto it = m_dtcCategories.find(code);
-        return it != m_dtcCategories.end() ? it->second : "Unknown";
-    }
+    std::string getDTCCategory(const std::string& code) const;
 
     std::vector<DiagnosticTroubleCode> m_activeDTCs;
     std::vector<DiagnosticTroubleCode> m_dtcHistory;
