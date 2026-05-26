@@ -1,7 +1,7 @@
 # Team Roles & Responsibilities
 
 ## Member 1: Architecture Lead
-**Name**: [Fill in]  
+**Name**: Nischal NV  
 **GitHub**: @username  
 **Email**: email@example.com
 
@@ -22,7 +22,7 @@
 ---
 
 ## Member 2: Alert Specialist
-**Name**: [Fill in]  
+**Name**: Sarthak Krishak
 **GitHub**: @username  
 **Email**: email@example.com
 
@@ -43,7 +43,7 @@
 ---
 
 ## Member 3: Dashboard Developer
-**Name**: [Fill in]  
+**Name**: Payel S
 **GitHub**: @username  
 **Email**: email@example.com
 
@@ -66,7 +66,7 @@
 ---
 
 ## Member 4: Threading Expert
-**Name**: [Fill in]  
+**Name**: Mohammad A
 **GitHub**: @username  
 **Email**: email@example.com
 
@@ -87,7 +87,7 @@
 ---
 
 ## Member 5: Integration Lead
-**Name**: [Fill in]  
+**Name**: Priyanshu P
 **GitHub**: @username  
 **Email**: email@example.com
 
