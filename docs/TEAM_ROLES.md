@@ -2,8 +2,6 @@
 
 ## Member 1: Architecture Lead
 **Name**: Nischal NV  
-**GitHub**: @username  
-**Email**: email@example.com
 
 ### Primary Responsibilities
 - Design base `Sensor` class hierarchy
@@ -23,8 +21,6 @@
 
 ## Member 2: Alert Specialist
 **Name**: Sarthak Krishak
-**GitHub**: @username  
-**Email**: email@example.com
 
 ### Primary Responsibilities
 - Implement Alert & AlertManager classes
@@ -44,8 +40,6 @@
 
 ## Member 3: Dashboard Developer
 **Name**: Payel S
-**GitHub**: @username  
-**Email**: email@example.com
 
 ### Primary Responsibilities
 - Implement Dashboard class
@@ -67,8 +61,6 @@
 
 ## Member 4: Threading Expert
 **Name**: Mohammad A
-**GitHub**: @username  
-**Email**: email@example.com
 
 ### Primary Responsibilities
 - Design thread-safe data structures
@@ -88,8 +80,6 @@
 
 ## Member 5: Integration Lead
 **Name**: Priyanshu P
-**GitHub**: @username  
-**Email**: email@example.com
 
 ### Primary Responsibilities
 - JSON configuration system
