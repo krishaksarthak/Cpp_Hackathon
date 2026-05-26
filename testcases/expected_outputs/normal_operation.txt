@@ -1,0 +1,31 @@
+========================================
+VEHICLE MONITORING SYSTEM
+========================================
+Status: RUNNING
+Uptime: 00:02:34
+Profile: Eco Mode
+========================================
+
+SENSOR READINGS
+----------------------------------------
+Engine Temperature:  87.2°C    [NORMAL]
+Battery Voltage:     12.4V     [NORMAL]
+Vehicle Speed:       65 km/h   [NORMAL]
+Tire Pressure:       32 PSI    [NORMAL]
+Door Status:         CLOSED    [NORMAL]
+Seatbelt Status:     LOCKED    [NORMAL]
+
+ACTIVE ALERTS: 0
+----------------------------------------
+No active alerts
+
+STATISTICS
+----------------------------------------
+Avg Speed (5min):    68.5 km/h
+Peak Temp:           98.2°C
+Total Alerts:        0
+Uptime:              00:02:34
+
+========================================
+Last Updated: 2024-05-26 14:32:15
+========================================

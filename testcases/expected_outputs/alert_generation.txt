@@ -1,0 +1,36 @@
+========================================
+VEHICLE MONITORING SYSTEM
+========================================
+Status: RUNNING - ALERTS ACTIVE
+Uptime: 00:05:12
+Profile: Sport Mode
+========================================
+
+SENSOR READINGS
+----------------------------------------
+Engine Temperature:  115.8°C   [CRITICAL]
+Battery Voltage:     12.1V     [NORMAL]
+Vehicle Speed:       145 km/h  [WARNING]
+Tire Pressure:       28 PSI    [NORMAL]
+Door Status:         CLOSED    [NORMAL]
+Seatbelt Status:     LOCKED    [NORMAL]
+
+ACTIVE ALERTS: 2
+----------------------------------------
+[CRITICAL] [14:35:22] ENGINE OVERHEAT - Temp: 115.8°C
+[WARNING]  [14:35:20] OVERSPEED - Speed: 145 km/h
+
+DTC CODES GENERATED
+----------------------------------------
+P0217 - Engine Coolant Over Temperature Condition
+
+STATISTICS
+----------------------------------------
+Avg Speed (5min):    112.3 km/h
+Peak Temp:           115.8°C
+Total Alerts:        2
+Uptime:              00:05:12
+
+========================================
+Last Updated: 2024-05-26 14:35:25
+========================================

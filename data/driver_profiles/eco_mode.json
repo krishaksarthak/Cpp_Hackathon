@@ -1,0 +1,16 @@
+{
+  "profile_name": "Eco Mode",
+  "description": "Optimized for fuel efficiency and gentle driving",
+  "thresholds": {
+    "speed_limit": 100,
+    "engine_temp_warning": 95,
+    "engine_temp_critical": 105,
+    "aggressive_acceleration_alert": true,
+    "harsh_braking_alert": true
+  },
+  "alert_sensitivity": "high",
+  "display_preferences": {
+    "show_fuel_economy": true,
+    "show_eco_score": true
+  }
+}

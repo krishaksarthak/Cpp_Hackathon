@@ -1,0 +1,16 @@
+{
+  "profile_name": "Comfort Mode",
+  "description": "Balanced driving experience",
+  "thresholds": {
+    "speed_limit": 120,
+    "engine_temp_warning": 100,
+    "engine_temp_critical": 110,
+    "aggressive_acceleration_alert": true,
+    "harsh_braking_alert": true
+  },
+  "alert_sensitivity": "medium",
+  "display_preferences": {
+    "show_fuel_economy": true,
+    "show_comfort_score": true
+  }
+}

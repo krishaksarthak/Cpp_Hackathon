@@ -1,0 +1,47 @@
+{
+  "application": {
+    "name": "Smart Cabin & Vehicle Health Monitoring System",
+    "version": "1.0.0",
+    "update_interval_ms": 1000
+  },
+  "sensors": {
+    "engine_temp_threshold_critical": 110,
+    "engine_temp_threshold_warning": 100,
+    "battery_voltage_min": 10.0,
+    "battery_voltage_nominal": 12.6,
+    "tire_pressure_min": 25,
+    "tire_pressure_nominal": 32,
+    "speed_limit": 120,
+    "update_interval_ms": 500
+  },
+  "alerts": {
+    "max_active_alerts": 50,
+    "alert_timeout_seconds": 30,
+    "enable_audio_warnings": true
+  },
+  "logging": {
+    "log_file_path": "../logs/vehicle_events.log",
+    "max_file_size_mb": 10,
+    "rotation_enabled": true,
+    "log_level": "INFO"
+  },
+  "profiles": {
+    "active_profile": "eco_mode",
+    "available_profiles": ["eco_mode", "sport_mode", "comfort_mode"]
+  },
+  "dtc": {
+    "max_stored_dtc": 100,
+    "freeze_frame_enabled": true
+  },
+  "threading": {
+    "sensor_thread_priority": 1,
+    "monitoring_thread_priority": 2,
+    "dashboard_thread_priority": 0,
+    "logger_thread_priority": 0
+  },
+  "watchdog": {
+    "enabled": true,
+    "heartbeat_interval_ms": 2000,
+    "thread_timeout_ms": 5000
+  }
+}

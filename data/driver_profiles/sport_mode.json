@@ -1,0 +1,17 @@
+{
+  "profile_name": "Sport Mode",
+  "description": "Performance-oriented driving with higher thresholds",
+  "thresholds": {
+    "speed_limit": 180,
+    "engine_temp_warning": 115,
+    "engine_temp_critical": 125,
+    "aggressive_acceleration_alert": false,
+    "harsh_braking_alert": false
+  },
+  "alert_sensitivity": "low",
+  "display_preferences": {
+    "show_fuel_economy": false,
+    "show_performance_metrics": true,
+    "show_g_forces": true
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "dtc_definitions": {
+    "P0217": {
+      "description": "Engine Coolant Over Temperature Condition",
+      "severity": "CRITICAL",
+      "category": "Powertrain"
+    },
+    "P0562": {
+      "description": "System Voltage Low",
+      "severity": "WARNING",
+      "category": "Electrical"
+    },
+    "P0128": {
+      "description": "Coolant Thermostat Temperature Below Regulating Temperature",
+      "severity": "INFO",
+      "category": "Powertrain"
+    },
+    "C0035": {
+      "description": "Left Front Wheel Speed Sensor Circuit",
+      "severity": "WARNING",
+      "category": "Chassis"
+    },
+    "B0001": {
+      "description": "Driver Airbag Circuit Short to Ground",
+      "severity": "CRITICAL",
+      "category": "Body"
+    },
+    "U0001": {
+      "description": "High Speed CAN Communication Bus",
+      "severity": "CRITICAL",
+      "category": "Network"
+    }
+  }
+}

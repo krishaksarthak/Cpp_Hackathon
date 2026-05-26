@@ -1,0 +1,641 @@
+================================================================================
+VEHICLE MONITORING SYSTEM - TEST CASES
+================================================================================
+Project: Adaptive Automotive C++ Hackathon
+Version: 1.0
+Date: 2024-05-26
+================================================================================
+
+TEST CASE CATEGORIES:
+1. Sensor Tests
+2. Alert Tests
+3. Dashboard Tests
+4. Logger Tests
+5. Threading Tests
+6. Configuration Tests
+7. DTC Tests
+8. Integration Tests
+
+================================================================================
+SECTION 1: SENSOR TESTS
+================================================================================
+
+TC-SENSOR-001: Verify Base Sensor Class
+-------------------------------------------
+Objective: Ensure base Sensor class has pure virtual functions
+Prerequisites: Sensor.hpp compiled
+Test Steps:
+  1. Check Sensor class has virtual destructor
+  2. Verify update() is pure virtual
+  3. Verify display() is pure virtual
+Expected Result: Cannot instantiate Sensor directly, only derived classes
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-SENSOR-002: Engine Temperature Sensor Update
+-------------------------------------------
+Objective: Verify engine temp sensor generates values in valid range
+Prerequisites: EngineTemperatureSensor compiled
+Test Steps:
+  1. Create EngineTemperatureSensor object
+  2. Call update() 100 times
+  3. Record min/max values
+Expected Result: Values between 60°C - 130°C
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-SENSOR-003: Battery Voltage Sensor Update
+-------------------------------------------
+Objective: Verify battery sensor generates realistic voltage values
+Prerequisites: BatterySensor compiled
+Test Steps:
+  1. Create BatterySensor object
+  2. Call update() 100 times
+  3. Record min/max values
+Expected Result: Values between 9V - 15V
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-SENSOR-004: Speed Sensor Update
+-------------------------------------------
+Objective: Verify speed sensor generates values in valid range
+Prerequisites: SpeedSensor compiled
+Test Steps:
+  1. Create SpeedSensor object
+  2. Call update() 100 times
+  3. Verify non-negative values
+Expected Result: Values between 0 - 200 km/h
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-SENSOR-005: Tire Pressure Sensor Update
+-------------------------------------------
+Objective: Verify tire pressure sensor generates realistic values
+Prerequisites: TirePressureSensor compiled
+Test Steps:
+  1. Create TirePressureSensor object
+  2. Call update() 100 times
+  3. Record values
+Expected Result: Values between 20 - 40 PSI
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-SENSOR-006: Door Status Sensor
+-------------------------------------------
+Objective: Verify door sensor toggles between OPEN/CLOSED
+Prerequisites: DoorSensor compiled
+Test Steps:
+  1. Create DoorSensor object
+  2. Call update() 50 times
+  3. Verify both states appear
+Expected Result: Both OPEN and CLOSED states observed
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-SENSOR-007: Seatbelt Status Sensor
+-------------------------------------------
+Objective: Verify seatbelt sensor toggles between LOCKED/UNLOCKED
+Prerequisites: SeatbeltSensor compiled
+Test Steps:
+  1. Create SeatbeltSensor object
+  2. Call update() 50 times
+  3. Verify both states appear
+Expected Result: Both LOCKED and UNLOCKED states observed
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-SENSOR-008: Polymorphic Sensor Access
+-------------------------------------------
+Objective: Verify runtime polymorphism works correctly
+Prerequisites: All sensor classes compiled
+Test Steps:
+  1. Create vector<unique_ptr<Sensor>>
+  2. Add all 6 sensor types
+  3. Call update() on each via base pointer
+Expected Result: Each sensor updates correctly via polymorphism
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+================================================================================
+SECTION 2: ALERT TESTS
+================================================================================
+
+TC-ALERT-001: Alert Severity Enum
+-------------------------------------------
+Objective: Verify AlertSeverity enum class defined correctly
+Prerequisites: Alert.hpp compiled
+Test Steps:
+  1. Check INFO, WARNING, CRITICAL defined
+  2. Verify type-safe (cannot implicitly convert to int)
+Expected Result: Enum class with 3 severity levels
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-ALERT-002: Engine Overheat Alert
+-------------------------------------------
+Objective: Verify alert triggered when temp > 110°C
+Prerequisites: AlertManager compiled
+Test Steps:
+  1. Set engine temp to 115°C
+  2. Run monitoring logic
+  3. Check alert generated
+Expected Result: CRITICAL alert "ENGINE OVERHEAT" created
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-ALERT-003: Low Battery Alert
+-------------------------------------------
+Objective: Verify alert triggered when voltage < 10V
+Prerequisites: AlertManager compiled
+Test Steps:
+  1. Set battery voltage to 9.5V
+  2. Run monitoring logic
+  3. Check alert generated
+Expected Result: WARNING alert "LOW BATTERY" created
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-ALERT-004: Low Tire Pressure Alert
+-------------------------------------------
+Objective: Verify alert triggered when pressure < 25 PSI
+Prerequisites: AlertManager compiled
+Test Steps:
+  1. Set tire pressure to 22 PSI
+  2. Run monitoring logic
+  3. Check alert generated
+Expected Result: WARNING alert "LOW TIRE PRESSURE" created
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-ALERT-005: Overspeed Alert
+-------------------------------------------
+Objective: Verify alert triggered when speed > 120 km/h
+Prerequisites: AlertManager compiled
+Test Steps:
+  1. Set speed to 135 km/h
+  2. Run monitoring logic
+  3. Check alert generated
+Expected Result: WARNING alert "OVERSPEED" created
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-ALERT-006: Door Open While Moving Alert
+-------------------------------------------
+Objective: Verify alert when door open and speed > 10 km/h
+Prerequisites: AlertManager compiled
+Test Steps:
+  1. Set door = OPEN, speed = 50 km/h
+  2. Run monitoring logic
+  3. Check alert generated
+Expected Result: CRITICAL alert "DOOR OPEN WARNING" created
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-ALERT-007: Seatbelt Unlocked While Moving Alert
+-------------------------------------------
+Objective: Verify alert when seatbelt unlocked and moving
+Prerequisites: AlertManager compiled
+Test Steps:
+  1. Set seatbelt = UNLOCKED, speed = 30 km/h
+  2. Run monitoring logic
+  3. Check alert generated
+Expected Result: WARNING alert "SEATBELT WARNING" created
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-ALERT-008: Alert Operator Overloading
+-------------------------------------------
+Objective: Verify << operator formats alert correctly
+Prerequisites: Alert class compiled
+Test Steps:
+  1. Create Alert object
+  2. Use cout << alert
+  3. Verify formatted output
+Expected Result: "[SEVERITY] [TIMESTAMP] Message" format
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-ALERT-009: Multiple Concurrent Alerts
+-------------------------------------------
+Objective: Verify system handles multiple alerts simultaneously
+Prerequisites: AlertManager compiled
+Test Steps:
+  1. Trigger 3 different alerts at once
+  2. Check all stored correctly
+  3. Verify no duplicates
+Expected Result: All 3 alerts stored in container
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+================================================================================
+SECTION 3: DASHBOARD TESTS
+================================================================================
+
+TC-DASH-001: Display Current Sensor Values
+-------------------------------------------
+Objective: Verify dashboard shows all sensor readings
+Prerequisites: Dashboard compiled
+Test Steps:
+  1. Update all sensors
+  2. Call dashboard.display()
+  3. Check output contains all 6 sensors
+Expected Result: All sensor values displayed with labels
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-DASH-002: Display Active Alerts
+-------------------------------------------
+Objective: Verify dashboard shows active alerts
+Prerequisites: Dashboard + AlertManager compiled
+Test Steps:
+  1. Generate 2 alerts
+  2. Call dashboard.display()
+  3. Check alerts shown
+Expected Result: Active alerts section shows 2 alerts
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-DASH-003: Display Statistics
+-------------------------------------------
+Objective: Verify statistics displayed correctly
+Prerequisites: VehicleStatistics compiled
+Test Steps:
+  1. Run system for 5 minutes
+  2. Display statistics
+  3. Verify calculations correct
+Expected Result: Avg speed, peak temp, alert count shown
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-DASH-004: Formatted Output
+-------------------------------------------
+Objective: Verify dashboard output is well-formatted
+Prerequisites: Dashboard compiled
+Test Steps:
+  1. Call dashboard.display()
+  2. Check alignment, borders, headers
+Expected Result: Professional table/box formatting
+Priority: LOW
+Status: [ ] PASS [ ] FAIL
+
+================================================================================
+SECTION 4: LOGGER TESTS
+================================================================================
+
+TC-LOG-001: Event Logging to File
+-------------------------------------------
+Objective: Verify events written to log file
+Prerequisites: EventLogger compiled
+Test Steps:
+  1. Generate 5 alerts
+  2. Check logs/vehicle_events.log exists
+  3. Verify 5 entries present
+Expected Result: File contains 5 timestamped log entries
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-LOG-002: Timestamp Format
+-------------------------------------------
+Objective: Verify log entries have correct timestamp format
+Prerequisites: EventLogger compiled
+Test Steps:
+  1. Log an event
+  2. Read log file
+  3. Parse timestamp
+Expected Result: Format: [YYYY-MM-DD HH:MM:SS]
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-LOG-003: Search/Filter Events
+-------------------------------------------
+Objective: Verify lambda-based event filtering works
+Prerequisites: EventLogger compiled
+Test Steps:
+  1. Log 10 events (mix of severities)
+  2. Filter for CRITICAL only
+  3. Verify only CRITICAL returned
+Expected Result: Lambda filter returns correct subset
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-LOG-004: Log File RAII
+-------------------------------------------
+Objective: Verify file handle properly closed
+Prerequisites: EventLogger compiled
+Test Steps:
+  1. Create EventLogger in scope {}
+  2. Exit scope
+  3. Try to read log file
+Expected Result: File accessible, not locked
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-LOG-005: Exception Safety in Logging
+-------------------------------------------
+Objective: Verify logger handles file write failures
+Prerequisites: EventLogger compiled
+Test Steps:
+  1. Remove write permissions on logs/
+  2. Attempt to log event
+  3. Verify exception caught
+Expected Result: Exception handled, program doesn't crash
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+================================================================================
+SECTION 5: THREADING TESTS
+================================================================================
+
+TC-THREAD-001: Four Threads Running
+-------------------------------------------
+Objective: Verify all 4 threads start and run
+Prerequisites: ThreadManager compiled
+Test Steps:
+  1. Start application
+  2. Use ps/htop to count threads
+  3. Verify 4 worker threads + main
+Expected Result: 5 total threads visible
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-THREAD-002: Sensor Thread Updates
+-------------------------------------------
+Objective: Verify sensor thread updates sensors periodically
+Prerequisites: All modules compiled
+Test Steps:
+  1. Start system
+  2. Monitor sensor values over 10 seconds
+  3. Verify values change
+Expected Result: Sensor values update every ~1 second
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-THREAD-003: Monitoring Thread Detects Alerts
+-------------------------------------------
+Objective: Verify monitoring thread evaluates conditions
+Prerequisites: All modules compiled
+Test Steps:
+  1. Inject high temp value
+  2. Wait for monitoring cycle
+  3. Check alert generated
+Expected Result: Alert appears within 2 seconds
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-THREAD-004: Dashboard Thread Displays
+-------------------------------------------
+Objective: Verify dashboard thread refreshes display
+Prerequisites: All modules compiled
+Test Steps:
+  1. Start system
+  2. Observe console output
+  3. Verify periodic updates
+Expected Result: Dashboard refreshes every 2-3 seconds
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-THREAD-005: Logger Thread Writes
+-------------------------------------------
+Objective: Verify logger thread writes asynchronously
+Prerequisites: All modules compiled
+Test Steps:
+  1. Generate 20 alerts rapidly
+  2. Check all logged
+  3. Verify no blocking
+Expected Result: All events logged, main thread not blocked
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-THREAD-006: Mutex Protection
+-------------------------------------------
+Objective: Verify shared data protected by mutex
+Prerequisites: ThreadManager compiled
+Test Steps:
+  1. Use ThreadSanitizer or manual inspection
+  2. Check every shared container access
+  3. Verify lock_guard used
+Expected Result: No data races detected
+Priority: CRITICAL
+Status: [ ] PASS [ ] FAIL
+
+TC-THREAD-007: Graceful Shutdown
+-------------------------------------------
+Objective: Verify all threads join properly on exit
+Prerequisites: ThreadManager compiled
+Test Steps:
+  1. Run system for 1 minute
+  2. Send shutdown signal (Ctrl+C)
+  3. Verify clean exit
+Expected Result: No segfaults, all threads joined
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-THREAD-008: Watchdog Thread Recovery
+-------------------------------------------
+Objective: Verify watchdog restarts hung threads
+Prerequisites: Watchdog compiled
+Test Steps:
+  1. Simulate thread hang (infinite loop)
+  2. Wait for watchdog timeout
+  3. Verify thread restarted
+Expected Result: Watchdog detects and restarts thread
+Priority: HIGH (Bonus Feature)
+Status: [ ] PASS [ ] FAIL
+
+================================================================================
+SECTION 6: CONFIGURATION TESTS
+================================================================================
+
+TC-CONFIG-001: Load JSON Configuration
+-------------------------------------------
+Objective: Verify JSON config file loaded correctly
+Prerequisites: ConfigManager compiled
+Test Steps:
+  1. Create config.json with test values
+  2. Load configuration
+  3. Verify values read correctly
+Expected Result: All config values match JSON
+Priority: HIGH (Bonus Feature)
+Status: [ ] PASS [ ] FAIL
+
+TC-CONFIG-002: Invalid JSON Handling
+-------------------------------------------
+Objective: Verify graceful handling of malformed JSON
+Prerequisites: ConfigManager compiled
+Test Steps:
+  1. Create invalid JSON (missing bracket)
+  2. Attempt to load
+  3. Verify exception caught
+Expected Result: Error logged, default values used
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-CONFIG-003: Profile Switching
+-------------------------------------------
+Objective: Verify driver profile changes thresholds
+Prerequisites: DriverProfile compiled
+Test Steps:
+  1. Load eco_mode.json
+  2. Check speed limit = 100
+  3. Switch to sport_mode.json
+  4. Check speed limit = 180
+Expected Result: Thresholds update per profile
+Priority: HIGH (Bonus Feature)
+Status: [ ] PASS [ ] FAIL
+
+TC-CONFIG-004: Runtime Config Reload
+-------------------------------------------
+Objective: Verify config can reload without restart
+Prerequisites: ConfigManager compiled
+Test Steps:
+  1. Start system
+  2. Edit config.json
+  3. Send reload signal
+  4. Verify new values applied
+Expected Result: Configuration reloaded dynamically
+Priority: MEDIUM (Bonus Feature)
+Status: [ ] PASS [ ] FAIL
+
+================================================================================
+SECTION 7: DTC TESTS
+================================================================================
+
+TC-DTC-001: DTC Generation
+-------------------------------------------
+Objective: Verify DTC created for engine overheat
+Prerequisites: DTC module compiled
+Test Steps:
+  1. Trigger engine overheat alert
+  2. Check DTC P0217 generated
+  3. Verify stored in DTC list
+Expected Result: DTC P0217 with timestamp stored
+Priority: HIGH (Bonus Feature)
+Status: [ ] PASS [ ] FAIL
+
+TC-DTC-002: DTC Code Mapping
+-------------------------------------------
+Objective: Verify DTC codes map correctly to conditions
+Prerequisites: DTC module compiled
+Test Steps:
+  1. Trigger low battery
+  2. Check DTC P0562 generated
+  3. Verify description correct
+Expected Result: Correct DTC code for each condition
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-DTC-003: DTC History Storage
+-------------------------------------------
+Objective: Verify DTCs stored persistently
+Prerequisites: DTC module compiled
+Test Steps:
+  1. Generate 5 different DTCs
+  2. Check all stored
+  3. Verify retrievable
+Expected Result: All DTCs in history, searchable
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+TC-DTC-004: Freeze Frame Data
+-------------------------------------------
+Objective: Verify freeze frame captured with DTC
+Prerequisites: DTC module compiled
+Test Steps:
+  1. Generate DTC
+  2. Check freeze frame includes sensor values
+  3. Verify timestamp included
+Expected Result: DTC includes snapshot of all sensors
+Priority: LOW (Bonus Feature)
+Status: [ ] PASS [ ] FAIL
+
+================================================================================
+SECTION 8: INTEGRATION TESTS
+================================================================================
+
+TC-INT-001: End-to-End Normal Operation
+-------------------------------------------
+Objective: Verify system runs without alerts
+Prerequisites: All modules compiled
+Test Steps:
+  1. Start system
+  2. Run for 5 minutes
+  3. Verify no crashes, sensors updating
+Expected Result: System stable, no alerts if sensors normal
+Priority: CRITICAL
+Status: [ ] PASS [ ] FAIL
+
+TC-INT-002: End-to-End Alert Flow
+-------------------------------------------
+Objective: Verify complete alert flow from sensor to log
+Prerequisites: All modules compiled
+Test Steps:
+  1. Inject high temperature
+  2. Wait for monitoring cycle
+  3. Verify: alert created → dashboard shows → logged
+Expected Result: Alert appears on dashboard AND in log file
+Priority: CRITICAL
+Status: [ ] PASS [ ] FAIL
+
+TC-INT-003: Memory Leak Check
+-------------------------------------------
+Objective: Verify no memory leaks over extended run
+Prerequisites: Valgrind installed
+Test Steps:
+  1. Run with valgrind for 5 minutes
+  2. Check valgrind report
+  3. Verify no leaks
+Expected Result: 0 bytes leaked
+Priority: CRITICAL
+Status: [ ] PASS [ ] FAIL
+
+TC-INT-004: Stress Test - Rapid Alerts
+-------------------------------------------
+Objective: Verify system handles alert storm
+Prerequisites: All modules compiled
+Test Steps:
+  1. Trigger 50 alerts rapidly
+  2. Verify all processed
+  3. Check no deadlocks
+Expected Result: All alerts processed, system stable
+Priority: HIGH
+Status: [ ] PASS [ ] FAIL
+
+TC-INT-005: Profile Switch During Runtime
+-------------------------------------------
+Objective: Verify profile switching doesn't crash system
+Prerequisites: All modules compiled
+Test Steps:
+  1. Run in eco_mode
+  2. Switch to sport_mode mid-operation
+  3. Verify smooth transition
+Expected Result: No crashes, new thresholds applied
+Priority: MEDIUM
+Status: [ ] PASS [ ] FAIL
+
+================================================================================
+SUMMARY
+================================================================================
+Total Test Cases: 58
+  - Sensor Tests: 8
+  - Alert Tests: 9
+  - Dashboard Tests: 4
+  - Logger Tests: 5
+  - Threading Tests: 8
+  - Configuration Tests: 4
+  - DTC Tests: 4
+  - Integration Tests: 5
+
+Priority Breakdown:
+  - CRITICAL: 3
+  - HIGH: 35
+  - MEDIUM: 17
+  - LOW: 3
+
+Bonus Feature Test Cases: 12
+
+Expected Pass Rate: 100%
+Expected Completion Time: 2 hours
+
+================================================================================
+END OF TEST CASES
+================================================================================
