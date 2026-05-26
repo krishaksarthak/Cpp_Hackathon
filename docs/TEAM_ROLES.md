@@ -1,6 +1,6 @@
 # Team Roles & Responsibilities
 
-## Member 1: Architecture Lead
+## Member 1:
 **Name**: Nischal NV  
 
 ### Primary Responsibilities
@@ -19,7 +19,7 @@
 
 ---
 
-## Member 2: Alert Specialist
+## Member 2:
 **Name**: Sarthak Krishak
 
 ### Primary Responsibilities
@@ -38,7 +38,7 @@
 
 ---
 
-## Member 3: Dashboard Developer
+## Member 3:
 **Name**: Payel S
 
 ### Primary Responsibilities
@@ -59,7 +59,7 @@
 
 ---
 
-## Member 4: Threading Expert
+## Member 4:
 **Name**: Mohammad A
 
 ### Primary Responsibilities
@@ -78,7 +78,7 @@
 
 ---
 
-## Member 5: Integration Lead
+## Member 5:
 **Name**: Priyanshu P
 
 ### Primary Responsibilities

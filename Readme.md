@@ -24,13 +24,13 @@ A production-grade automotive cockpit ECU simulation implementing:
 
 ## 👥 Team Members
 
-| Name | Role | Focus Area |
-|------|------|------------|
-| Member 1 | Architecture Lead | Sensor Framework |
-| Member 2 | Alert Specialist | Alert Management + DTC |
-| Member 3 | Dashboard Developer | UI + Logger + Statistics |
-| Member 4 | Threading Expert | Concurrency + Watchdog |
-| Member 5 | Integration Lead | Config + Profiles + Docs |
+| Name | Focus Area |
+|------|------------|
+| Nischal NV | Sensor Framework |
+| Sarthak K  | Alert Management + DTC |
+| Payel S    | UI + Logger + Statistics |
+| Ayan M     | Concurrency + Watchdog |
+| Priyanshu P| Config + Profiles + Docs |
 
 ---
 
