@@ -138,17 +138,33 @@ build\VehicleMonitoringSystem.exe
 
 We provide an exhaustive automated test suite (47+ assertions) covering system bounds, logic edge cases, concurrency, and file system crash-recoveries.
 
-**Run All Edge Cases & Unit Tests (Windows):**
+**Run the Master Test Suite (Windows CMD):**
 ```cmd
 .\testcases\run_all_tests.bat
 ```
 
-**What this script does:**
+**Run the Master Test Suite (Windows PowerShell):**
+```powershell
+.\testcases\run_all_tests.ps1
+```
+
+**Run the Master Test Suite (Linux / macOS):**
+```bash
+chmod +x testcases/run_all_tests.sh
+./testcases/run_all_tests.sh
+```
+
+**What the Master Test Script Does (7-Stage Pipeline):**
 1. **Clean Recompilation:** Compiles the project from scratch.
 2. **Smoke Test:** Boots the application and ensures it doesn't crash on startup.
-3. **Programmatic Edge Cases:** Executes `test_sensors.exe`, `test_alerts.exe`, and `test_threading.exe` to evaluate bounds and logic.
-4. **File System Crash Tests:** Dynamically deletes critical runtime files (like `config.json` and `driver_profiles`) to verify the Watchdog and parsers gracefully fallback to defaults rather than causing a fatal exception.
-5. **Report Generation:** Summarizes the pass/fail rate into a `testcases/test_results_<timestamp>.log` file.
+3. **Log Validation:** Parses the runtime logs to verify precise timestamp formatting.
+4. **Configuration Validation:** Validates `config.json` and hot-swappable driver profiles.
+5. **Standard C++ Unit Tests:** Executes `test_sensors.exe`, `test_alerts.exe`, and `test_threading.exe` to evaluate bounds and logic.
+6. **File System Crash Tests:** Dynamically deletes critical runtime files to verify the Watchdog gracefully falls back to defaults instead of fatal crashing.
+7. **Comprehensive Edge Cases (C++ EXTREME):** Unleashes an aggressive 11-stage suite (`comprehensive_edgecases.exe`) simulating extreme concurrency thread starvation, lock contention, and physics limit violations.
+
+**Result Reports:** 
+All tests automatically calculate a final pass percentage on the terminal and generate a massive, fully-detailed report containing every executed assertion in `testcases/logs/detailed_test_report.log`.
 
 ---
 
