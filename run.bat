@@ -1,15 +1,24 @@
 @echo off
 setlocal
-echo ========================================
+:: ANSI Color Setup
+for /F %%a in ('echo prompt $E ^| cmd') do set ESC=%%a
+set GREEN=%ESC%[32m
+set RED=%ESC%[31m
+set YELLOW=%ESC%[33m
+set CYAN=%ESC%[36m
+set BLUE=%ESC%[94m
+set RESET=%ESC%[0m
+
+echo %CYAN%========================================%RESET%
 echo Building and Running Vehicle Monitoring System
 echo Compiler: MinGW GCC
 echo Build System: CMake
-echo ========================================
+echo %CYAN%========================================%RESET%
 
 :: Check if CMake is available
 where cmake >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [ERROR] CMake is not installed or not in PATH.
+    echo %RED%[ERROR]%RESET% CMake is not installed or not in PATH.
     pause
     exit /b 1
 )
@@ -17,7 +26,7 @@ if %errorlevel% neq 0 (
 :: Check if mingw32-make is available
 where mingw32-make >nul 2>nul
 if %errorlevel% neq 0 (
-    echo [ERROR] mingw32-make is not installed or not in PATH.
+    echo %RED%[ERROR]%RESET% mingw32-make is not installed or not in PATH.
     pause
     exit /b 1
 )
@@ -30,34 +39,34 @@ cd build
 if not exist "..\logs" mkdir "..\logs"
 
 echo.
-echo [1/3] Configuring CMake...
-echo [INFO] Saving detailed output to logs\build.log
+echo %YELLOW%[1/3]%RESET% Configuring CMake...
+echo %BLUE%[INFO]%RESET% Saving detailed output to logs\build.log
 cmake -G "MinGW Makefiles" .. > "..\logs\build.log" 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] CMake configuration failed. Check logs\build.log
+    echo %RED%[ERROR]%RESET% CMake configuration failed. Check logs\build.log
     cd ..
     pause
     exit /b 1
 )
 
 echo.
-echo [2/3] Building Project...
+echo %YELLOW%[2/3]%RESET% Building Project...
 mingw32-make -j4 >> "..\logs\build.log" 2>&1
 if %errorlevel% neq 0 (
-    echo [ERROR] Build failed. Check logs\build.log
+    echo %RED%[ERROR]%RESET% Build failed. Check logs\build.log
     cd ..
     pause
     exit /b 1
 )
 
 echo.
-echo [3/3] Running Tests...
+echo %YELLOW%[3/3]%RESET% Running Tests...
 ctest -V >> "..\logs\build.log" 2>&1
 
 echo.
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo Launching Application
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo.
 
 :: Return to root directory so that data/ and logs/ folders resolve correctly
@@ -67,8 +76,8 @@ cd ..
 build\VehicleMonitoringSystem.exe
 
 echo.
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo Application terminated
 echo Check logs/ directory for event logs
-echo ========================================
+echo %CYAN%========================================%RESET%
 pause

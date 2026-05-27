@@ -31,6 +31,7 @@
 // Core modules
 #include "common/Types.hpp"
 #include "common/Utils.hpp"
+#include "common/Colors.hpp"
 
 // Sensor framework
 #include "sensors/Sensor.hpp"
@@ -294,9 +295,9 @@ int main() {
         logger.flush();
 
         // Print final statistics
-        std::cout << "\n========================================\n";
+        std::cout << Colors::CYAN << "\n========================================\n";
         std::cout << "  FINAL SESSION STATISTICS\n";
-        std::cout << "========================================\n";
+        std::cout << "========================================\n" << Colors::RESET;
         std::cout << stats.getFormattedStats();
         std::cout << "Total Sensors:    " << Sensor::getSensorCount() << "\n";
         std::cout << "Total Alerts:     " << alertManager.getTotalAlertCount() << "\n";
@@ -309,11 +310,11 @@ int main() {
             [](const LogEntry& entry) {
                 return entry.severity == AlertSeverity::CRITICAL;
             });
-        std::cout << "Critical Events:  " << criticalEvents.size() << "\n";
+        std::cout << Colors::RED << "Critical Events:  " << criticalEvents.size() << Colors::RESET << "\n";
 
-        std::cout << "========================================\n";
-        std::cout << "[SHUTDOWN] Clean shutdown complete. No memory leaks.\n";
-        std::cout << "[SHUTDOWN] Log saved to: " << logPath << "\n\n";
+        std::cout << Colors::CYAN << "========================================\n" << Colors::RESET;
+        std::cout << Colors::GREEN << "[SHUTDOWN] Clean shutdown complete. No memory leaks.\n";
+        std::cout << "[SHUTDOWN] Log saved to: " << logPath << Colors::RESET << "\n\n";
 
     } catch (const std::exception& e) {
         std::cerr << "\n[FATAL] Unhandled exception: " << e.what() << "\n";

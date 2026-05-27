@@ -6,6 +6,14 @@ if exist "run_all_tests.bat" (
     cd ..
 )
 
+:: ANSI Color Setup for Windows 10/11
+for /F %%a in ('echo prompt $E ^| cmd') do set ESC=%%a
+set GREEN=%ESC%[32m
+set RED=%ESC%[31m
+set YELLOW=%ESC%[33m
+set CYAN=%ESC%[36m
+set RESET=%ESC%[0m
+
 :: Test result counters
 set TESTS_PASSED=0
 set TESTS_FAILED=0
@@ -25,22 +33,22 @@ echo. >> %LOG_FILE%
 
 :: Initialize detailed append log
 set DETAILED_LOG=testcases\logs\detailed_test_report.log
-echo ======================================== >> %DETAILED_LOG%
+echo %CYAN%========================================%RESET% >> %DETAILED_LOG%
 echo TEST RUN STARTED: %date% %time% >> %DETAILED_LOG%
-echo ======================================== >> %DETAILED_LOG%
+echo %CYAN%========================================%RESET% >> %DETAILED_LOG%
 
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo VEHICLE MONITORING SYSTEM - TEST SUITE
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo.
 
 ::==============================================================================
 :: PRE-CHECKS
 ::==============================================================================
 
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo PRE-REQUISITE CHECKS
-echo ========================================
+echo %CYAN%========================================%RESET%
 
 :: Check if project is built
 echo Checking if project is built...
@@ -56,23 +64,23 @@ if not exist "build\VehicleMonitoringSystem.exe" (
         exit /b 1
     )
 )
-echo [PASS] Build check
+echo %GREEN%[PASS]%RESET% Build check
 set /a TESTS_PASSED+=1
 
 :: Check logs directory
 echo Checking logs directory...
 if not exist "logs" mkdir logs
-echo [PASS] Logs directory
+echo %GREEN%[PASS]%RESET% Logs directory
 set /a TESTS_PASSED+=1
 
 :: Check config file
 echo Checking config file...
 if not exist "data\config.json" (
-    echo [FAIL] config.json not found!
+    echo %RED%[FAIL]%RESET% config.json not found!
     set /a TESTS_FAILED+=1
     exit /b 1
 )
-echo [PASS] Configuration file
+echo %GREEN%[PASS]%RESET% Configuration file
 set /a TESTS_PASSED+=1
 
 ::==============================================================================
@@ -80,18 +88,18 @@ set /a TESTS_PASSED+=1
 ::==============================================================================
 
 echo.
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo SECTION 1: BUILD TESTS
-echo ========================================
+echo %CYAN%========================================%RESET%
 
 echo TC-BUILD-001: Clean compilation
 cd build
 cmake --build . --clean-first > nul 2>&1
 if errorlevel 1 (
-    echo [FAIL] Clean compilation
+    echo %RED%[FAIL]%RESET% Clean compilation
     set /a TESTS_FAILED+=1
 ) else (
-    echo [PASS] Clean compilation
+    echo %GREEN%[PASS]%RESET% Clean compilation
     set /a TESTS_PASSED+=1
 )
 cd ..
@@ -101,9 +109,9 @@ cd ..
 ::==============================================================================
 
 echo.
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo SECTION 2: SMOKE TEST
-echo ========================================
+echo %CYAN%========================================%RESET%
 
 echo TC-SMOKE-001: Application starts without crash
 start /B build\VehicleMonitoringSystem.exe > nul 2>&1
@@ -111,10 +119,10 @@ timeout /t 3 /nobreak > nul
 taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
 
     if exist "logs\vehicle_log.txt" (
-        echo [PASS] Application started successfully
+        echo %GREEN%[PASS]%RESET% Application started successfully
         set /a TESTS_PASSED+=1
     ) else (
-        echo [FAIL] Application did not start properly
+        echo %RED%[FAIL]%RESET% Application did not start properly
         set /a TESTS_FAILED+=1
     )
 
@@ -123,9 +131,9 @@ taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
     ::==============================================================================
 
     echo.
-    echo ========================================
+    echo %CYAN%========================================%RESET%
     echo SECTION 3: LOG FILE TESTS
-    echo ========================================
+    echo %CYAN%========================================%RESET%
 
     :: Clean old logs
     if exist "logs\vehicle_log.txt" del /Q logs\vehicle_log.txt
@@ -136,10 +144,10 @@ taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
     taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
 
     if exist "logs\vehicle_log.txt" (
-        echo [PASS] Log file created
+        echo %GREEN%[PASS]%RESET% Log file created
         set /a TESTS_PASSED+=1
     ) else (
-        echo [FAIL] Log file not created
+        echo %RED%[FAIL]%RESET% Log file not created
         set /a TESTS_FAILED+=1
     )
 
@@ -147,14 +155,14 @@ taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
     if exist "logs\vehicle_log.txt" (
         findstr /R "\[[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]" logs\vehicle_log.txt > nul
     if errorlevel 1 (
-        echo [FAIL] Log entries missing timestamps
+        echo %RED%[FAIL]%RESET% Log entries missing timestamps
         set /a TESTS_FAILED+=1
     ) else (
-        echo [PASS] Log entries have timestamps
+        echo %GREEN%[PASS]%RESET% Log entries have timestamps
         set /a TESTS_PASSED+=1
     )
 ) else (
-    echo [SKIP] Log file not available
+    echo %YELLOW%[SKIP]%RESET% Log file not available
     set /a TESTS_SKIPPED+=1
 )
 
@@ -163,9 +171,9 @@ taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
 ::==============================================================================
 
 echo.
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo SECTION 4: CONFIGURATION TESTS
-echo ========================================
+echo %CYAN%========================================%RESET%
 
 echo TC-CONFIG-001: Profile files exist
 set PROFILE_COUNT=0
@@ -174,10 +182,10 @@ if exist "data\driver_profiles\sport_mode.json" set /a PROFILE_COUNT+=1
 if exist "data\driver_profiles\comfort_mode.json" set /a PROFILE_COUNT+=1
 
 if %PROFILE_COUNT%==3 (
-    echo [PASS] All 3 driver profiles present
+    echo %GREEN%[PASS]%RESET% All 3 driver profiles present
     set /a TESTS_PASSED+=1
 ) else (
-    echo [FAIL] Missing driver profiles (%PROFILE_COUNT%/3 found^)
+    echo %RED%[FAIL]%RESET% Missing driver profiles (%PROFILE_COUNT%/3 found^)
     set /a TESTS_FAILED+=1
 )
 
@@ -186,23 +194,23 @@ if %PROFILE_COUNT%==3 (
 ::==============================================================================
 
 echo.
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo SECTION 5: C++ UNIT TESTS (EDGE CASES)
-echo ========================================
+echo %CYAN%========================================%RESET%
 
 echo TC-UNIT-001: Sensor Simulation ^& Bounds Edge Cases
 if exist "build\tests\test_sensors.exe" (
     echo [RUNNING] test_sensors.exe >> %DETAILED_LOG%
     build\tests\test_sensors.exe >> %DETAILED_LOG% 2>&1
     if errorlevel 1 (
-        echo [FAIL] Sensor edge cases failed
+        echo %RED%[FAIL]%RESET% Sensor edge cases failed
         set /a TESTS_FAILED+=1
     ) else (
-        echo [PASS] Sensor edge cases passed
+        echo %GREEN%[PASS]%RESET% Sensor edge cases passed
         set /a TESTS_PASSED+=1
     )
 ) else (
-    echo [SKIP] test_sensors.exe not found
+    echo %YELLOW%[SKIP]%RESET% test_sensors.exe not found
     set /a TESTS_SKIPPED+=1
 )
 
@@ -211,14 +219,14 @@ if exist "build\tests\test_alerts.exe" (
     echo [RUNNING] test_alerts.exe >> %DETAILED_LOG%
     build\tests\test_alerts.exe >> %DETAILED_LOG% 2>&1
     if errorlevel 1 (
-        echo [FAIL] Alert/DTC edge cases failed
+        echo %RED%[FAIL]%RESET% Alert/DTC edge cases failed
         set /a TESTS_FAILED+=1
     ) else (
-        echo [PASS] Alert/DTC edge cases passed
+        echo %GREEN%[PASS]%RESET% Alert/DTC edge cases passed
         set /a TESTS_PASSED+=1
     )
 ) else (
-    echo [SKIP] test_alerts.exe not found
+    echo %YELLOW%[SKIP]%RESET% test_alerts.exe not found
     set /a TESTS_SKIPPED+=1
 )
 
@@ -227,14 +235,14 @@ if exist "build\tests\test_threading.exe" (
     echo [RUNNING] test_threading.exe >> %DETAILED_LOG%
     build\tests\test_threading.exe >> %DETAILED_LOG% 2>&1
     if errorlevel 1 (
-        echo [FAIL] Threading edge cases failed
+        echo %RED%[FAIL]%RESET% Threading edge cases failed
         set /a TESTS_FAILED+=1
     ) else (
-        echo [PASS] Threading edge cases passed
+        echo %GREEN%[PASS]%RESET% Threading edge cases passed
         set /a TESTS_PASSED+=1
     )
 ) else (
-    echo [SKIP] test_threading.exe not found
+    echo %YELLOW%[SKIP]%RESET% test_threading.exe not found
     set /a TESTS_SKIPPED+=1
 )
 
@@ -243,9 +251,9 @@ if exist "build\tests\test_threading.exe" (
 ::==============================================================================
 
 echo.
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo SECTION 6: FILE SYSTEM EDGE CASES
-echo ========================================
+echo %CYAN%========================================%RESET%
 
 echo TC-EDGE-001: Application recovery without config.json
 if exist "data\config.json" (
@@ -254,10 +262,10 @@ if exist "data\config.json" (
     timeout /t 3 /nobreak > nul
     taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
     move data\config.json.bak data\config.json > nul
-    echo [PASS] Handled missing config safely
+    echo %GREEN%[PASS]%RESET% Handled missing config safely
     set /a TESTS_PASSED+=1
 ) else (
-    echo [SKIP] Cannot test missing config
+    echo %YELLOW%[SKIP]%RESET% Cannot test missing config
     set /a TESTS_SKIPPED+=1
 )
 
@@ -268,10 +276,10 @@ if exist "data\driver_profiles" (
     timeout /t 3 /nobreak > nul
     taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
     move data\driver_profiles_bak data\driver_profiles > nul
-    echo [PASS] Handled missing profiles safely
+    echo %GREEN%[PASS]%RESET% Handled missing profiles safely
     set /a TESTS_PASSED+=1
 ) else (
-    echo [SKIP] Cannot test missing profiles
+    echo %YELLOW%[SKIP]%RESET% Cannot test missing profiles
     set /a TESTS_SKIPPED+=1
 )
 
@@ -280,23 +288,23 @@ if exist "data\driver_profiles" (
 ::==============================================================================
 
 echo.
-echo ========================================
+echo %CYAN%========================================%RESET%
 echo SECTION 7: COMPREHENSIVE EDGE CASES
-echo ========================================
+echo %CYAN%========================================%RESET%
 
 echo TC-EDGE-003: Extreme Physics, Concurrency, and Parser Edge Cases
 if exist "build\testcases\comprehensive_edgecases.exe" (
     echo [RUNNING] comprehensive_edgecases.exe >> %DETAILED_LOG%
     build\testcases\comprehensive_edgecases.exe >> %DETAILED_LOG% 2>&1
     if errorlevel 1 (
-        echo [FAIL] Comprehensive edge cases failed
+        echo %RED%[FAIL]%RESET% Comprehensive edge cases failed
         set /a TESTS_FAILED+=1
     ) else (
-        echo [PASS] Comprehensive edge cases passed
+        echo %GREEN%[PASS]%RESET% Comprehensive edge cases passed
         set /a TESTS_PASSED+=1
     )
 ) else (
-    echo [SKIP] comprehensive_edgecases.exe not found
+    echo %YELLOW%[SKIP]%RESET% comprehensive_edgecases.exe not found
     set /a TESTS_SKIPPED+=1
 )
 
