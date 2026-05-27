@@ -56,12 +56,13 @@ public:
                   VehicleStatistics& stats,
                   EventLogger& logger,
                   Watchdog& watchdog,
-                  const DriverProfile& activeProfile);
+                  std::shared_ptr<DriverProfile> activeProfile);
 
     /**
-     * @brief Dynamically update the active driver profile
+     * @brief Switch driver profile at runtime
+     * Demonstrates: Thread-safe dynamic configuration update via shared_ptr
      */
-    void updateProfile(const DriverProfile& newProfile);
+    void updateProfile(std::shared_ptr<DriverProfile> newProfile);
 
     /**
      * @brief RAII destructor - ensures clean shutdown
@@ -127,7 +128,7 @@ private:
     VehicleStatistics& m_stats;
     EventLogger& m_logger;
     Watchdog& m_watchdog;
-    DriverProfile m_activeProfile; // Passed by value to allow safe thread updates
+    std::shared_ptr<DriverProfile> m_activeProfile; // Passed by value to allow safe thread updates
 
     // Thread management
     std::atomic<bool> m_running;

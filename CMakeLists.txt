@@ -64,6 +64,7 @@ option(BUILD_TESTS "Build unit tests" ON)
 if(BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
+    add_subdirectory(testcases)
 endif()
 
 # Installation

@@ -6,7 +6,7 @@ namespace VehicleSystem {
 
 BatterySensor::BatterySensor(SensorID id)
     : Sensor(id, "Battery Voltage", SensorType::BATTERY_VOLTAGE) {
-    m_currentValue = 12.6; // Nominal battery voltage
+    m_currentValue = 12.5; // Nominal battery voltage
 }
 
 void BatterySensor::update() {

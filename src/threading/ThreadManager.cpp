@@ -9,7 +9,7 @@ ThreadManager::ThreadManager(std::vector<std::unique_ptr<Sensor>>& sensors,
               VehicleStatistics& stats,
               EventLogger& logger,
               Watchdog& watchdog,
-              const DriverProfile& activeProfile)
+              std::shared_ptr<DriverProfile> activeProfile)
     : m_sensors(sensors),
       m_alertManager(alertManager),
       m_dtcManager(dtcManager),
@@ -24,14 +24,14 @@ ThreadManager::ThreadManager(std::vector<std::unique_ptr<Sensor>>& sensors,
       m_dashboardIntervalMs(2000),
       m_loggerIntervalMs(1000) {}
 
-void ThreadManager::updateProfile(const DriverProfile& newProfile) {
+void ThreadManager::updateProfile(std::shared_ptr<DriverProfile> newProfile) {
     std::lock_guard<std::mutex> lock(m_sensorMutex);
     m_activeProfile = newProfile;
     
     // Update alert manager dynamically
-    m_alertManager.setSpeedLimit(newProfile.getSpeedLimit());
-    m_alertManager.setEngineTempCritical(newProfile.getEngineTempCritical());
-    m_alertManager.setEngineTempWarning(newProfile.getEngineTempWarning());
+    m_alertManager.setSpeedLimit(newProfile->getSpeedLimit());
+    m_alertManager.setEngineTempCritical(newProfile->getEngineTempCritical());
+    m_alertManager.setEngineTempWarning(newProfile->getEngineTempWarning());
 }
 
 ThreadManager::~ThreadManager() {
@@ -131,7 +131,7 @@ void ThreadManager::monitoringLoop() {
                 {
                     std::lock_guard<std::mutex> lock(m_sensorMutex);
                     m_dtcManager.generateDTC(alert, m_sensors,
-                        m_activeProfile.getName());
+                        m_activeProfile->getName());
                 }
 
                 // Record in statistics
@@ -162,7 +162,7 @@ void ThreadManager::dashboardLoop() {
             {
                 std::lock_guard<std::mutex> lock(m_sensorMutex);
                 m_dashboard.display(m_sensors, m_alertManager, m_dtcManager,
-                                   m_stats, m_watchdog, m_activeProfile.getName());
+                                   m_stats, m_watchdog, m_activeProfile->getName());
             }
             m_watchdog.heartbeat("DashboardRenderer");
         } catch (const std::exception& e) {

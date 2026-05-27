@@ -111,7 +111,7 @@ void Dashboard::displayWatchdog(std::ostringstream& oss, const Watchdog& watchdo
 void Dashboard::displayFooter(std::ostringstream& oss) {
     oss << "\n========================================\n";
     oss << "Last Updated: " << Utils::getCurrentTimestamp() << "\n";
-    oss << "Press Ctrl+C to exit | 'p' to switch profile\n";
+    oss << "Press Ctrl+C or 'q' to exit | 'p' to switch profile\n";
     oss << "========================================\n";
 }
 

@@ -6,7 +6,7 @@ namespace VehicleSystem {
 
 TirePressureSensor::TirePressureSensor(SensorID id)
     : Sensor(id, "Tire Pressure", SensorType::TIRE_PRESSURE) {
-    m_currentValue = 32.0; // Nominal tire pressure
+    m_currentValue = 30.0; // Nominal tire pressure
 }
 
 void TirePressureSensor::update() {

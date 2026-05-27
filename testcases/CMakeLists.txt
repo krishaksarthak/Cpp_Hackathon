@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.10)
+
+add_executable(comprehensive_edgecases comprehensive_edgecases.cpp)
+target_link_libraries(comprehensive_edgecases PRIVATE VehicleLib Threads::Threads)
+add_test(NAME ComprehensiveEdgeCases COMMAND comprehensive_edgecases)

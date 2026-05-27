@@ -4,7 +4,8 @@ namespace VehicleSystem {
 
 void VehicleStatistics::recordSpeed(double speed) {
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_speedHistory.push_back(speed);
+    // SensorDataBuffer<double>::push() — template method handles circular eviction
+    m_speedHistory.push(speed);
 
     // Calculate distance: speed * time since last record
     auto now = std::chrono::steady_clock::now();
@@ -12,20 +13,13 @@ void VehicleStatistics::recordSpeed(double speed) {
         now - m_lastSpeedRecordTime).count();
     m_totalDistance += speed * elapsedHours;
     m_lastSpeedRecordTime = now;
-
-    // Keep only last 300 readings (~5 min at 1/sec)
-    if (m_speedHistory.size() > 300) {
-        m_speedHistory.erase(m_speedHistory.begin());
-    }
 }
 
 void VehicleStatistics::recordTemperature(double temp) {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_peakTemperature = std::max(m_peakTemperature, temp);
-    m_temperatureHistory.push_back(temp);
-    if (m_temperatureHistory.size() > 300) {
-        m_temperatureHistory.erase(m_temperatureHistory.begin());
-    }
+    // SensorDataBuffer<double>::push() — template method
+    m_temperatureHistory.push(temp);
 }
 
 void VehicleStatistics::recordBatteryVoltage(double voltage) {
@@ -43,23 +37,19 @@ void VehicleStatistics::recordAlert(AlertSeverity severity, const std::string& t
     ++m_totalAlerts;
     m_alertFrequency[type]++;
     m_severityCount[severityToString(severity)]++;
+    m_uniqueAlertTypes.insert(type); // Uses std::set to ensure uniqueness
 }
 
 double VehicleStatistics::getAverageSpeed() const {
     std::lock_guard<std::mutex> lock(m_mutex);
-    if (m_speedHistory.empty()) return 0.0;
-    // STL algorithm: std::accumulate with lambda
-    double sum = std::accumulate(m_speedHistory.begin(), m_speedHistory.end(), 0.0,
-        [](double acc, double val) { return acc + val; });
-    return sum / static_cast<double>(m_speedHistory.size());
+    // SensorDataBuffer<double>::average() uses std::accumulate internally
+    return m_speedHistory.average();
 }
 
 double VehicleStatistics::getAverageTemperature() const {
     std::lock_guard<std::mutex> lock(m_mutex);
-    if (m_temperatureHistory.empty()) return 0.0;
-    double sum = std::accumulate(m_temperatureHistory.begin(),
-                                  m_temperatureHistory.end(), 0.0);
-    return sum / static_cast<double>(m_temperatureHistory.size());
+    // SensorDataBuffer<double>::average() uses std::accumulate internally
+    return m_temperatureHistory.average();
 }
 
 double VehicleStatistics::getPeakTemperature() const {
@@ -130,6 +120,7 @@ void VehicleStatistics::reset() {
     m_totalAlerts = 0;
     m_alertFrequency.clear();
     m_severityCount.clear();
+    m_uniqueAlertTypes.clear();
     m_startTime = std::chrono::steady_clock::now();
 }
 
@@ -143,6 +134,7 @@ std::string VehicleStatistics::getFormattedStats() const {
     oss << "Min Tire Press:   " << std::setw(8) << getMinTirePressure() << " PSI\n";
     oss << "Total Distance:   " << std::setw(8) << getTotalDistance() << " km\n";
     oss << "Total Alerts:     " << std::setw(8) << getTotalAlerts() << "\n";
+    oss << "Unique Alerts:    " << std::setw(8) << m_uniqueAlertTypes.size() << "\n";
     oss << "Most Frequent:    " << getMostFrequentAlert() << "\n";
     oss << "Uptime:           " << getUptime() << "\n";
     return oss.str();

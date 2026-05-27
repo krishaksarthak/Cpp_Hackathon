@@ -20,8 +20,12 @@
 #include <csignal>
 #include <cstdlib>
 #include <atomic>
+#include <fstream>
 #ifdef _WIN32
 #include <conio.h>
+#include <direct.h>   // _mkdir on Windows
+#else
+#include <sys/stat.h> // mkdir on POSIX
 #endif
 
 // Core modules
@@ -106,6 +110,18 @@ std::string findDataDir() {
     return "data"; // Default fallback
 }
 
+/**
+ * @brief Creates a directory cross-platform.
+ * Replaces system() calls with safe API calls (no shell injection risk).
+ */
+bool createDirectory(const std::string& path) {
+#ifdef _WIN32
+    return (_mkdir(path.c_str()) == 0 || errno == EEXIST);
+#else
+    return (mkdir(path.c_str(), 0755) == 0 || errno == EEXIST);
+#endif
+}
+
 int main() {
     // Install signal handler for graceful shutdown
     std::signal(SIGINT, signalHandler);
@@ -131,7 +147,7 @@ int main() {
         // ===== Phase 2: Driver Profile Loading =====
         std::cout << "[INIT] Loading driver profile...\n";
         
-        DriverProfile activeProfile;
+        auto activeProfile = std::make_shared<DriverProfile>();
         std::vector<std::string> availableProfiles = {"eco_mode", "sport_mode", "comfort_mode"};
         int currentProfileIdx = 0;
 
@@ -146,11 +162,11 @@ int main() {
 
         std::string profilePath = dataDir + "/driver_profiles/" + availableProfiles[currentProfileIdx] + ".json";
         
-        if (activeProfile.loadProfile(profilePath)) {
-            std::cout << "[INIT] Loaded profile: " << activeProfile.getName() << "\n";
-            std::cout << "  Speed Limit: " << activeProfile.getSpeedLimit() << " km/h\n";
-            std::cout << "  Temp Warning: " << activeProfile.getEngineTempWarning() << " C\n";
-            std::cout << "  Temp Critical: " << activeProfile.getEngineTempCritical() << " C\n";
+        if (activeProfile->loadProfile(profilePath)) {
+            std::cout << "[INIT] Loaded profile: " << activeProfile->getName() << "\n";
+            std::cout << "  Speed Limit: " << activeProfile->getSpeedLimit() << " km/h\n";
+            std::cout << "  Temp Warning: " << activeProfile->getEngineTempWarning() << " C\n";
+            std::cout << "  Temp Critical: " << activeProfile->getEngineTempCritical() << " C\n";
         } else {
             std::cout << "[WARN] Could not load profile '" << availableProfiles[currentProfileIdx] 
                       << "', using defaults.\n";
@@ -175,9 +191,9 @@ int main() {
         
         AlertManager alertManager;
         // Apply profile thresholds
-        alertManager.setSpeedLimit(activeProfile.getSpeedLimit());
-        alertManager.setEngineTempCritical(activeProfile.getEngineTempCritical());
-        alertManager.setEngineTempWarning(activeProfile.getEngineTempWarning());
+        alertManager.setSpeedLimit(activeProfile->getSpeedLimit());
+        alertManager.setEngineTempCritical(activeProfile->getEngineTempCritical());
+        alertManager.setEngineTempWarning(activeProfile->getEngineTempWarning());
         
         DTCManager dtcManager;
         std::cout << "[INIT] Alert manager ready with 6 monitoring conditions\n";
@@ -196,14 +212,10 @@ int main() {
         std::cout << "[INIT] Starting event logger...\n";
         
         std::string logDir = "logs";
-        // Create logs directory if it doesn't exist
-        #ifdef _WIN32
-        system(("mkdir " + logDir + " 2>nul").c_str());
-        #else
-        system(("mkdir -p " + logDir).c_str());
-        #endif
+        // Create logs directory using safe API call (no system() shell injection)
+        createDirectory(logDir);
         
-        std::string logPath = logDir + "/vehicle_events.log";
+        std::string logPath = logDir + "/vehicle_log.txt";
         EventLogger logger(logPath);
         std::cout << "[INIT] Event logger writing to: " << logPath << "\n";
 
@@ -251,11 +263,14 @@ int main() {
                         std::string newProfName = availableProfiles[currentProfileIdx];
                         std::string newPath = dataDir + "/driver_profiles/" + newProfName + ".json";
                         
-                        DriverProfile newProfile;
-                        if (newProfile.loadProfile(newPath)) {
+                        auto newProfile = std::make_shared<DriverProfile>();
+                        if (newProfile->loadProfile(newPath)) {
                             threadManager.updateProfile(newProfile);
                             logger.logEvent(AlertSeverity::INFO, "Switched to profile: " + newProfName, "SYSTEM");
                         }
+                    } else if (c == 'q' || c == 'Q') {
+                        // Graceful quit via keyboard
+                        g_running.store(false);
                     }
                 }
 #endif
@@ -287,6 +302,15 @@ int main() {
         std::cout << "Total Alerts:     " << alertManager.getTotalAlertCount() << "\n";
         std::cout << "Active DTCs:      " << dtcManager.getActiveDTCCount() << "\n";
         std::cout << "Log Entries:      " << logger.getTotalLogCount() << "\n";
+
+        // --- STL algorithm + Lambda: Search event log for CRITICAL entries ---
+        // Demonstrates: std::function, lambda predicate, EventLogger::searchEvents
+        auto criticalEvents = logger.searchEvents(
+            [](const LogEntry& entry) {
+                return entry.severity == AlertSeverity::CRITICAL;
+            });
+        std::cout << "Critical Events:  " << criticalEvents.size() << "\n";
+
         std::cout << "========================================\n";
         std::cout << "[SHUTDOWN] Clean shutdown complete. No memory leaks.\n";
         std::cout << "[SHUTDOWN] Log saved to: " << logPath << "\n\n";

@@ -1,6 +1,11 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Ensure script runs from the project root directory
+if exist "run_all_tests.bat" (
+    cd ..
+)
+
 :: Test result counters
 set TESTS_PASSED=0
 set TESTS_FAILED=0
@@ -9,14 +14,20 @@ set TESTS_SKIPPED=0
 :: Log file
 set TIMESTAMP=%date:~-4%%date:~4,2%%date:~7,2%_%time:~0,2%%time:~3,2%%time:~6,2%
 set TIMESTAMP=%TIMESTAMP: =0%
-if not exist "logs" mkdir logs
-set LOG_FILE=logs\test_results_%TIMESTAMP%.log
+if not exist "testcases\logs" mkdir testcases\logs
+set LOG_FILE=testcases\logs\test_results_%TIMESTAMP%.log
 
 echo ======================================== > %LOG_FILE%
 echo VEHICLE MONITORING SYSTEM - TEST SUITE >> %LOG_FILE%
 echo ======================================== >> %LOG_FILE%
 echo Started: %date% %time% >> %LOG_FILE%
 echo. >> %LOG_FILE%
+
+:: Initialize detailed append log
+set DETAILED_LOG=testcases\logs\detailed_test_report.log
+echo ======================================== >> %DETAILED_LOG%
+echo TEST RUN STARTED: %date% %time% >> %DETAILED_LOG%
+echo ======================================== >> %DETAILED_LOG%
 
 echo ========================================
 echo VEHICLE MONITORING SYSTEM - TEST SUITE
@@ -99,42 +110,42 @@ start /B build\VehicleMonitoringSystem.exe > nul 2>&1
 timeout /t 3 /nobreak > nul
 taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
 
-if exist "logs\vehicle_events.log" (
-    echo [PASS] Application started successfully
-    set /a TESTS_PASSED+=1
-) else (
-    echo [FAIL] Application did not start properly
-    set /a TESTS_FAILED+=1
-)
+    if exist "logs\vehicle_log.txt" (
+        echo [PASS] Application started successfully
+        set /a TESTS_PASSED+=1
+    ) else (
+        echo [FAIL] Application did not start properly
+        set /a TESTS_FAILED+=1
+    )
 
-::==============================================================================
-:: SECTION 3: LOG FILE TESTS
-::==============================================================================
+    ::==============================================================================
+    :: SECTION 3: LOG FILE TESTS
+    ::==============================================================================
 
-echo.
-echo ========================================
-echo SECTION 3: LOG FILE TESTS
-echo ========================================
+    echo.
+    echo ========================================
+    echo SECTION 3: LOG FILE TESTS
+    echo ========================================
 
-:: Clean old logs
-if exist "logs\vehicle_events.log" del /Q logs\vehicle_events.log
+    :: Clean old logs
+    if exist "logs\vehicle_log.txt" del /Q logs\vehicle_log.txt
 
-echo TC-LOG-001: Log file creation
-start /B build\VehicleMonitoringSystem.exe > nul 2>&1
-timeout /t 3 /nobreak > nul
-taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
+    echo TC-LOG-001: Log file creation
+    start /B build\VehicleMonitoringSystem.exe > nul 2>&1
+    timeout /t 3 /nobreak > nul
+    taskkill /F /IM VehicleMonitoringSystem.exe > nul 2>&1
 
-if exist "logs\vehicle_events.log" (
-    echo [PASS] Log file created
-    set /a TESTS_PASSED+=1
-) else (
-    echo [FAIL] Log file not created
-    set /a TESTS_FAILED+=1
-)
+    if exist "logs\vehicle_log.txt" (
+        echo [PASS] Log file created
+        set /a TESTS_PASSED+=1
+    ) else (
+        echo [FAIL] Log file not created
+        set /a TESTS_FAILED+=1
+    )
 
-echo TC-LOG-002: Log entries have timestamps
-if exist "logs\vehicle_events.log" (
-    findstr /R "\[[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]" logs\vehicle_events.log > nul
+    echo TC-LOG-002: Log entries have timestamps
+    if exist "logs\vehicle_log.txt" (
+        findstr /R "\[[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]" logs\vehicle_log.txt > nul
     if errorlevel 1 (
         echo [FAIL] Log entries missing timestamps
         set /a TESTS_FAILED+=1
@@ -181,7 +192,8 @@ echo ========================================
 
 echo TC-UNIT-001: Sensor Simulation ^& Bounds Edge Cases
 if exist "build\tests\test_sensors.exe" (
-    build\tests\test_sensors.exe > nul 2>&1
+    echo [RUNNING] test_sensors.exe >> %DETAILED_LOG%
+    build\tests\test_sensors.exe >> %DETAILED_LOG% 2>&1
     if errorlevel 1 (
         echo [FAIL] Sensor edge cases failed
         set /a TESTS_FAILED+=1
@@ -196,7 +208,8 @@ if exist "build\tests\test_sensors.exe" (
 
 echo TC-UNIT-002: Alert Evaluation ^& DTC Edge Cases
 if exist "build\tests\test_alerts.exe" (
-    build\tests\test_alerts.exe > nul 2>&1
+    echo [RUNNING] test_alerts.exe >> %DETAILED_LOG%
+    build\tests\test_alerts.exe >> %DETAILED_LOG% 2>&1
     if errorlevel 1 (
         echo [FAIL] Alert/DTC edge cases failed
         set /a TESTS_FAILED+=1
@@ -211,7 +224,8 @@ if exist "build\tests\test_alerts.exe" (
 
 echo TC-UNIT-003: Thread Safety ^& Watchdog Edge Cases
 if exist "build\tests\test_threading.exe" (
-    build\tests\test_threading.exe > nul 2>&1
+    echo [RUNNING] test_threading.exe >> %DETAILED_LOG%
+    build\tests\test_threading.exe >> %DETAILED_LOG% 2>&1
     if errorlevel 1 (
         echo [FAIL] Threading edge cases failed
         set /a TESTS_FAILED+=1
@@ -262,6 +276,31 @@ if exist "data\driver_profiles" (
 )
 
 ::==============================================================================
+:: SECTION 7: COMPREHENSIVE EDGE CASES (C++ EXTREME TESTING)
+::==============================================================================
+
+echo.
+echo ========================================
+echo SECTION 7: COMPREHENSIVE EDGE CASES
+echo ========================================
+
+echo TC-EDGE-003: Extreme Physics, Concurrency, and Parser Edge Cases
+if exist "build\testcases\comprehensive_edgecases.exe" (
+    echo [RUNNING] comprehensive_edgecases.exe >> %DETAILED_LOG%
+    build\testcases\comprehensive_edgecases.exe >> %DETAILED_LOG% 2>&1
+    if errorlevel 1 (
+        echo [FAIL] Comprehensive edge cases failed
+        set /a TESTS_FAILED+=1
+    ) else (
+        echo [PASS] Comprehensive edge cases passed
+        set /a TESTS_PASSED+=1
+    )
+) else (
+    echo [SKIP] comprehensive_edgecases.exe not found
+    set /a TESTS_SKIPPED+=1
+)
+
+::==============================================================================
 :: SUMMARY
 ::==============================================================================
 
@@ -276,7 +315,7 @@ echo ----------------------------------------
 
 set /a TOTAL_TESTS=TESTS_PASSED+TESTS_FAILED
 if !TOTAL_TESTS! GTR 0 (
-    set /a PASS_RATE=(TESTS_PASSED*100)/TOTAL_TESTS
+    set /a PASS_RATE=TESTS_PASSED*100/TOTAL_TESTS
     echo Pass Rate: !PASS_RATE!%%
 )
 

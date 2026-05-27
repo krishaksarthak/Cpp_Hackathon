@@ -97,7 +97,8 @@ chmod +x run.sh
 mkdir build && cd build
 cmake -G "MinGW Makefiles" ..
 mingw32-make -j4
-VehicleMonitoringSystem.exe
+cd ..
+build\VehicleMonitoringSystem.exe
 ```
 
 ---
@@ -115,9 +116,11 @@ VehicleMonitoringSystem.exe
 - [x] Smart pointers (unique_ptr, shared_ptr)
 - [x] Exception handling
 - [x] RAII resource management
-- [x] Operator overloading
-- [x] Lambda expressions
-- [x] Templates
+- [x] Operator overloading (`<<`, `==`, `!=`, `<`, `>`)
+- [x] Lambda expressions (event filtering, alert filtering, statistics)
+- [x] Templates (`SensorDataBuffer<T>` — generic circular buffer used by VehicleStatistics)
+- [x] Static Members (`Alert::s_nextId`, `Sensor::s_sensorCount`)
+- [x] Copy/Move Semantics (Alert, Sensor, SensorDataBuffer, JsonValue)
 
 ### 🌟 Bonus Features
 - [x] JSON configuration management

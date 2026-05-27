@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include <mutex>
 #include <chrono>
 #include <numeric>
@@ -11,6 +12,7 @@
 #include <iomanip>
 #include <functional>
 #include "common/Types.hpp"
+#include "common/SensorDataBuffer.hpp"
 
 namespace VehicleSystem {
 
@@ -63,13 +65,13 @@ public:
     std::string getFormattedStats() const;
 
 private:
-    // Speed tracking
-    std::vector<double> m_speedHistory;
+    // Speed tracking — uses SensorDataBuffer<double> template class
+    SensorDataBuffer<double> m_speedHistory{500};
     double m_totalDistance;
     std::chrono::steady_clock::time_point m_lastSpeedRecordTime;
 
-    // Temperature tracking
-    std::vector<double> m_temperatureHistory;
+    // Temperature tracking — uses SensorDataBuffer<double> template class
+    SensorDataBuffer<double> m_temperatureHistory{500};
     double m_peakTemperature;
 
     // Battery tracking
@@ -82,6 +84,7 @@ private:
     size_t m_totalAlerts;
     std::map<std::string, int> m_alertFrequency;
     std::map<std::string, int> m_severityCount;
+    std::set<std::string> m_uniqueAlertTypes; // Demonstrates std::set
 
     // Timing
     std::chrono::steady_clock::time_point m_startTime;

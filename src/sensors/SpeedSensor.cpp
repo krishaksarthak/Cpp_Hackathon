@@ -6,7 +6,7 @@ namespace VehicleSystem {
 
 SpeedSensor::SpeedSensor(SensorID id)
     : Sensor(id, "Vehicle Speed", SensorType::VEHICLE_SPEED) {
-    m_currentValue = 0.0;
+    m_currentValue = 72.0;
 }
 
 void SpeedSensor::update() {

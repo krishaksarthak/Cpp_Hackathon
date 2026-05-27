@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Ensure script runs from the project root directory
+if [ -f "run_all_tests.sh" ]; then
+    cd ..
+fi
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -14,7 +19,8 @@ TESTS_SKIPPED=0
 
 # Log file
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-LOG_FILE="testcases/test_results_${TIMESTAMP}.log"
+mkdir -p testcases/logs
+LOG_FILE="testcases/logs/test_results_${TIMESTAMP}.log"
 
 echo "========================================" | tee $LOG_FILE
 echo "VEHICLE MONITORING SYSTEM - TEST SUITE" | tee -a $LOG_FILE
@@ -147,19 +153,19 @@ fi
 print_test_header "SECTION 4: LOG FILE TESTS"
 
 # Clean old logs
-rm -f logs/vehicle_events.log
+rm -f logs/vehicle_log.txt
 
 echo "TC-LOG-001: Log file creation" | tee -a $LOG_FILE
 timeout 3s ./build/VehicleMonitoringSystem > /dev/null 2>&1
-if [ -f "logs/vehicle_events.log" ]; then
+if [ -f "logs/vehicle_log.txt" ]; then
     print_result 0 "Log file created"
 else
     print_result 1 "Log file not created"
 fi
 
 echo "TC-LOG-002: Log entries have timestamps" | tee -a $LOG_FILE
-if [ -f "logs/vehicle_events.log" ]; then
-    TIMESTAMP_COUNT=$(grep -E "\[[0-9]{4}-[0-9]{2}-[0-9]{2}" logs/vehicle_events.log | wc -l)
+if [ -f "logs/vehicle_log.txt" ]; then
+    TIMESTAMP_COUNT=$(grep -E "\[[0-9]{4}-[0-9]{2}-[0-9]{2}" logs/vehicle_log.txt | wc -l)
     if [ $TIMESTAMP_COUNT -gt 0 ]; then
         print_result 0 "Log entries have timestamps"
     else

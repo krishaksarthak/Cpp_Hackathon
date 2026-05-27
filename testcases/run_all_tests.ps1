@@ -1,5 +1,9 @@
 # PowerShell Test Suite for Vehicle Monitoring System
 
+# Ensure script runs from the project root directory
+if (Test-Path "run_all_tests.ps1") {
+    Set-Location ..
+}
 # Color output functions
 function Write-Pass { param($msg) Write-Host "[PASS] $msg" -ForegroundColor Green }
 function Write-Fail { param($msg) Write-Host "[FAIL] $msg" -ForegroundColor Red }
@@ -13,7 +17,10 @@ $script:TestsSkipped = 0
 
 # Log file
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-$logFile = "testcases\test_results_$timestamp.log"
+if (-not (Test-Path "testcases\logs")) {
+    New-Item -ItemType Directory -Path "testcases\logs" | Out-Null
+}
+$logFile = "testcases\logs\test_results_$timestamp.log"
 
 Write-Host "========================================"
 Write-Host "VEHICLE MONITORING SYSTEM - TEST SUITE"
@@ -26,6 +33,11 @@ Write-Host ""
 "========================================" | Out-File -FilePath $logFile -Append
 "Started: $(Get-Date)" | Out-File -FilePath $logFile -Append
 "" | Out-File -FilePath $logFile -Append
+
+$detailedLog = "testcases\logs\detailed_test_report.log"
+"========================================" | Out-File -FilePath $detailedLog -Append
+"TEST RUN STARTED: $(Get-Date)" | Out-File -FilePath $detailedLog -Append
+"========================================" | Out-File -FilePath $detailedLog -Append
 
 #==============================================================================
 # Helper Functions
@@ -112,7 +124,7 @@ $process = Start-Process -FilePath "build\VehicleMonitoringSystem.exe" -PassThru
 Start-Sleep -Seconds 3
 Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
 
-if (Test-Path "logs\vehicle_events.log") {
+if (Test-Path "logs\vehicle_log.txt") {
     Test-Pass "Application started successfully"
 } else {
     Test-Fail "Application did not start properly"
@@ -125,8 +137,8 @@ if (Test-Path "logs\vehicle_events.log") {
 Write-Header "SECTION 3: LOG FILE TESTS"
 
 # Clean old logs
-if (Test-Path "logs\vehicle_events.log") {
-    Remove-Item "logs\vehicle_events.log" -Force
+if (Test-Path "logs\vehicle_log.txt") {
+    Remove-Item "logs\vehicle_log.txt" -Force
 }
 
 Write-Host "TC-LOG-001: Log file creation"
@@ -134,15 +146,15 @@ $process = Start-Process -FilePath "build\VehicleMonitoringSystem.exe" -PassThru
 Start-Sleep -Seconds 3
 Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
 
-if (Test-Path "logs\vehicle_events.log") {
+if (Test-Path "logs\vehicle_log.txt") {
     Test-Pass "Log file created"
 } else {
     Test-Fail "Log file not created"
 }
 
 Write-Host "TC-LOG-002: Log entries have timestamps"
-if (Test-Path "logs\vehicle_events.log") {
-    $content = Get-Content "logs\vehicle_events.log" -Raw
+if (Test-Path "logs\vehicle_log.txt") {
+    $content = Get-Content "logs\vehicle_log.txt" -Raw
     if ($content -match '\[\d{4}-\d{2}-\d{2}') {
         Test-Pass "Log entries have timestamps"
     } else {
