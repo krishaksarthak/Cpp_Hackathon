@@ -55,12 +55,14 @@ std::vector<Alert> AlertManager::evaluateConditions(
         }
     }
 
-    // Condition 1: Engine Overheat
+    // Condition 1: Engine Overheat [ISO 26262 ASIL C]
+    // Safety Goal SG-01: Detect within 500ms, prevent thermal runaway
     if (engineTemp > currentEngineTempCritical) {
         if (!hasActiveAlert("ENGINE OVERHEAT")) {
             Alert alert(AlertSeverity::CRITICAL,
                        "ENGINE OVERHEAT - Temp: " + formatValue(engineTemp) + "C",
-                       SensorType::ENGINE_TEMPERATURE, engineTemp);
+                       SensorType::ENGINE_TEMPERATURE, engineTemp,
+                       ASILLevel::C);
             m_activeAlerts.push_back(alert);
             m_alertHistory.push_back(alert);
             newAlerts.push_back(alert);
@@ -69,12 +71,14 @@ std::vector<Alert> AlertManager::evaluateConditions(
         resolveAlert("ENGINE OVERHEAT");
     }
 
-    // Condition 2: Low Battery
+    // Condition 2: Low Battery [ISO 26262 ASIL B]
+    // Safety Goal SG-02: Warn before complete power loss
     if (batteryVoltage < currentBatteryVoltageMin) {
         if (!hasActiveAlert("LOW BATTERY")) {
             Alert alert(AlertSeverity::WARNING,
                        "LOW BATTERY - Voltage: " + formatValue(batteryVoltage) + "V",
-                       SensorType::BATTERY_VOLTAGE, batteryVoltage);
+                       SensorType::BATTERY_VOLTAGE, batteryVoltage,
+                       ASILLevel::B);
             m_activeAlerts.push_back(alert);
             m_alertHistory.push_back(alert);
             newAlerts.push_back(alert);
@@ -83,12 +87,14 @@ std::vector<Alert> AlertManager::evaluateConditions(
         resolveAlert("LOW BATTERY");
     }
 
-    // Condition 3: Low Tire Pressure
+    // Condition 3: Low Tire Pressure [ISO 26262 ASIL B]
+    // Safety Goal SG-04: Detect blowout risk in real time
     if (tirePressure < currentTirePressureMin) {
         if (!hasActiveAlert("LOW TIRE PRESSURE")) {
             Alert alert(AlertSeverity::WARNING,
                        "LOW TIRE PRESSURE - Pressure: " + formatValue(tirePressure) + " PSI",
-                       SensorType::TIRE_PRESSURE, tirePressure);
+                       SensorType::TIRE_PRESSURE, tirePressure,
+                       ASILLevel::B);
             m_activeAlerts.push_back(alert);
             m_alertHistory.push_back(alert);
             newAlerts.push_back(alert);
@@ -97,12 +103,14 @@ std::vector<Alert> AlertManager::evaluateConditions(
         resolveAlert("LOW TIRE PRESSURE");
     }
 
-    // Condition 4: Overspeed
+    // Condition 4: Overspeed [ISO 26262 ASIL B]
+    // Safety Goal SG-03: Alert driver when speed exceeds profile limit
     if (speed > currentSpeedLimit) {
         if (!hasActiveAlert("OVERSPEED")) {
             Alert alert(AlertSeverity::WARNING,
                        "OVERSPEED - Speed: " + formatValue(speed) + " km/h",
-                       SensorType::VEHICLE_SPEED, speed);
+                       SensorType::VEHICLE_SPEED, speed,
+                       ASILLevel::B);
             m_activeAlerts.push_back(alert);
             m_alertHistory.push_back(alert);
             newAlerts.push_back(alert);
@@ -111,12 +119,14 @@ std::vector<Alert> AlertManager::evaluateConditions(
         resolveAlert("OVERSPEED");
     }
 
-    // Condition 5: Door Open While Moving
+    // Condition 5: Door Open While Moving [ISO 26262 ASIL C]
+    // Safety Goal SG-05: Immediate CRITICAL alert above 10 km/h
     if (doorOpen && speed > 10.0) {
         if (!hasActiveAlert("DOOR OPEN WARNING")) {
             Alert alert(AlertSeverity::CRITICAL,
                        "DOOR OPEN WARNING - Speed: " + formatValue(speed) + " km/h",
-                       SensorType::DOOR_STATUS, speed);
+                       SensorType::DOOR_STATUS, speed,
+                       ASILLevel::C);
             m_activeAlerts.push_back(alert);
             m_alertHistory.push_back(alert);
             newAlerts.push_back(alert);
@@ -125,12 +135,14 @@ std::vector<Alert> AlertManager::evaluateConditions(
         resolveAlert("DOOR OPEN WARNING");
     }
 
-    // Condition 6: Seatbelt Unlocked While Moving
+    // Condition 6: Seatbelt Unlocked While Moving [ISO 26262 ASIL B]
+    // Safety Goal SG-06: Continuously alert while moving without seatbelt
     if (seatbeltUnlocked && speed > 10.0) {
         if (!hasActiveAlert("SEATBELT WARNING")) {
             Alert alert(AlertSeverity::WARNING,
                        "SEATBELT WARNING - Seatbelt unlocked while moving",
-                       SensorType::SEATBELT_STATUS, speed);
+                       SensorType::SEATBELT_STATUS, speed,
+                       ASILLevel::B);
             m_activeAlerts.push_back(alert);
             m_alertHistory.push_back(alert);
             newAlerts.push_back(alert);

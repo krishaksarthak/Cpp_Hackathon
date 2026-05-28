@@ -4,37 +4,55 @@
       "description": "Engine Coolant Over Temperature Condition",
       "severity": "CRITICAL",
       "category": "Powertrain",
-      "trigger": "ENGINE OVERHEAT"
+      "trigger": "ENGINE OVERHEAT",
+      "asil": "C",
+      "hazard": "Engine thermal runaway leading to fire or mechanical failure at any speed",
+      "safety_goal": "SG-01: Detect engine overheat within 500ms and alert driver; prevent thermal runaway by continuous monitoring"
     },
     "P0562": {
       "description": "System Voltage Low",
       "severity": "WARNING",
       "category": "Electrical",
-      "trigger": "LOW BATTERY"
+      "trigger": "LOW BATTERY",
+      "asil": "B",
+      "hazard": "Loss of vehicle electrical power causing failure of safety-critical systems while driving",
+      "safety_goal": "SG-02: Warn driver of low battery voltage before complete power loss; monitor continuously while system is active"
     },
     "P0219": {
       "description": "Engine Overspeed Condition",
       "severity": "WARNING",
       "category": "Powertrain",
-      "trigger": "OVERSPEED"
+      "trigger": "OVERSPEED",
+      "asil": "B",
+      "hazard": "Loss of vehicle control at excessive speed, increasing collision risk and severity",
+      "safety_goal": "SG-03: Alert driver immediately when speed exceeds profile-configured limit; log all overspeed events"
     },
     "C0077": {
       "description": "Low Tire Pressure Warning",
       "severity": "WARNING",
       "category": "Chassis",
-      "trigger": "LOW TIRE PRESSURE"
+      "trigger": "LOW TIRE PRESSURE",
+      "asil": "B",
+      "hazard": "Tire blowout or loss of vehicle stability resulting in rollover or uncontrolled lane departure",
+      "safety_goal": "SG-04: Detect and alert low tire pressure in real time; trigger warning at or below 25 PSI threshold"
     },
     "B1026": {
       "description": "Door Ajar Indicator Circuit",
       "severity": "CRITICAL",
       "category": "Body",
-      "trigger": "DOOR OPEN WARNING"
+      "trigger": "DOOR OPEN WARNING",
+      "asil": "C",
+      "hazard": "Occupant ejection or injury due to open door while vehicle is in motion above 10 km/h",
+      "safety_goal": "SG-05: Immediately raise CRITICAL alert if any door is detected open while vehicle speed exceeds 10 km/h"
     },
     "B0075": {
       "description": "Driver Seatbelt Indicator Circuit Open",
       "severity": "WARNING",
       "category": "Body",
-      "trigger": "SEATBELT WARNING"
+      "trigger": "SEATBELT WARNING",
+      "asil": "B",
+      "hazard": "Severe occupant injury or fatality in a collision due to unrestrained occupant",
+      "safety_goal": "SG-06: Continuously alert driver when seatbelt is unfastened while vehicle speed exceeds 10 km/h"
     }
   }
 }

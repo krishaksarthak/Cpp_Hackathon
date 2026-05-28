@@ -53,11 +53,16 @@ struct DiagnosticTroubleCode {
           lastOccurrence(std::chrono::system_clock::now()),
           occurrenceCount(1), active(true) {}
 
-    /** @brief Format DTC for display */
+    std::string asil;         // e.g., "C" — ISO 26262 ASIL level
+    std::string hazard;       // Hazard description from HARA
+    std::string safetyGoal;   // Safety goal from HARA
+
+    /** @brief Format DTC for display including ISO 26262 ASIL level */
     std::string format() const {
         std::ostringstream oss;
         oss << code << " - " << description
             << " [" << severityToString(severity) << "]"
+            << " [" << asil << "]"
             << " (" << occurrenceCount << "x)";
         return oss.str();
     }
@@ -127,6 +132,9 @@ private:
     std::map<std::string, std::string> m_alertToDTCMap;
     std::map<std::string, std::string> m_dtcDescriptions;
     std::map<std::string, std::string> m_dtcCategories;
+    std::map<std::string, std::string> m_dtcASIL;         ///< ISO 26262 ASIL per DTC
+    std::map<std::string, std::string> m_dtcHazard;       ///< Hazard description per DTC
+    std::map<std::string, std::string> m_dtcSafetyGoal;   ///< Safety goal per DTC
 
     mutable std::mutex m_mutex;
 };

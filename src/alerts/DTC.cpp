@@ -37,6 +37,14 @@ void DTCManager::generateDTC(const Alert& alert,
     dtc.category = getDTCCategory(dtcCode);
     dtc.active = true;
 
+    // Populate ISO 26262 safety metadata
+    auto asilIt = m_dtcASIL.find(dtcCode);
+    dtc.asil = (asilIt != m_dtcASIL.end()) ? ("ASIL " + asilIt->second) : "QM";
+    auto hazardIt = m_dtcHazard.find(dtcCode);
+    dtc.hazard = (hazardIt != m_dtcHazard.end()) ? hazardIt->second : "";
+    auto sgIt = m_dtcSafetyGoal.find(dtcCode);
+    dtc.safetyGoal = (sgIt != m_dtcSafetyGoal.end()) ? sgIt->second : "";
+
     // Capture freeze frame (snapshot of all sensors)
     dtc.freezeFrame.timestamp = std::chrono::system_clock::now();
     dtc.freezeFrame.activeProfile = activeProfile;
@@ -115,12 +123,22 @@ void DTCManager::initializeDTCMappings() {
                 for (const auto& pair : dtcs) {
                     std::string code = pair.first;
                     const auto& data = pair.second;
-                    
+
                     m_dtcDescriptions[code] = data["description"].get("Unknown");
-                    m_dtcCategories[code] = data["category"].get("Unknown");
-                    
+                    m_dtcCategories[code]   = data["category"].get("Unknown");
+
                     if (data.hasKey("trigger")) {
                         m_alertToDTCMap[data["trigger"].get("")] = code;
+                    }
+                    // ISO 26262 fields
+                    if (data.hasKey("asil")) {
+                        m_dtcASIL[code] = data["asil"].get("QM");
+                    }
+                    if (data.hasKey("hazard")) {
+                        m_dtcHazard[code] = data["hazard"].get("");
+                    }
+                    if (data.hasKey("safety_goal")) {
+                        m_dtcSafetyGoal[code] = data["safety_goal"].get("");
                     }
                 }
                 loaded = true;

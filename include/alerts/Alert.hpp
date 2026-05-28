@@ -22,19 +22,23 @@ public:
      * @brief Construct a new Alert (auto-generates ID and timestamp)
      */
     Alert(AlertSeverity severity, const std::string& message,
-          SensorType source, double sensorValue)
+          SensorType source, double sensorValue,
+          ASILLevel asil = ASILLevel::QM)
         : m_id(s_nextId++), m_severity(severity), m_message(message),
           m_source(source), m_sensorValue(sensorValue),
-          m_timestamp(std::chrono::system_clock::now()), m_active(true) {}
+          m_timestamp(std::chrono::system_clock::now()),
+          m_active(true), m_asilLevel(asil) {}
 
     /**
      * @brief Construct with explicit ID (for deserialization)
      */
     Alert(AlertID id, AlertSeverity severity, const std::string& message,
-          SensorType source, double sensorValue)
+          SensorType source, double sensorValue,
+          ASILLevel asil = ASILLevel::QM)
         : m_id(id), m_severity(severity), m_message(message),
           m_source(source), m_sensorValue(sensorValue),
-          m_timestamp(std::chrono::system_clock::now()), m_active(true) {
+          m_timestamp(std::chrono::system_clock::now()),
+          m_active(true), m_asilLevel(asil) {
         if (id >= s_nextId) s_nextId = id + 1;
     }
 
@@ -60,6 +64,12 @@ public:
     double getSensorValue() const { return m_sensorValue; }
     Timestamp getTimestamp() const { return m_timestamp; }
     bool isActive() const { return m_active; }
+
+    /** @brief Get ISO 26262 ASIL level assigned to this alert */
+    ASILLevel getASIL() const { return m_asilLevel; }
+
+    /** @brief Get ASIL level as string (e.g. "ASIL C") */
+    std::string getASILString() const { return asilToString(m_asilLevel); }
 
     /** @brief Deactivate this alert (resolved) */
     void deactivate() { m_active = false; }
@@ -103,6 +113,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Alert& alert) {
         os << "[" << std::setw(8) << alert.getSeverityString() << "] "
            << "[" << alert.getTimestampString() << "] "
+           << "[" << std::setw(6) << alert.getASILString() << "] "
            << alert.m_message;
         if (alert.m_sensorValue != 0.0) {
             os << " (Value: " << std::fixed << std::setprecision(1)
@@ -132,6 +143,7 @@ private:
     double m_sensorValue;
     Timestamp m_timestamp;
     bool m_active;
+    ASILLevel m_asilLevel;  ///< ISO 26262 safety integrity level for this alert
 };
 
 } // namespace VehicleSystem

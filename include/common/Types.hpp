@@ -39,6 +39,19 @@ enum class SeatbeltState {
     UNLOCKED
 };
 
+/**
+ * @brief ISO 26262 Automotive Safety Integrity Level (ASIL).
+ * QM = Quality Management (no safety requirement),
+ * A = lowest, D = highest safety integrity requirement.
+ */
+enum class ASILLevel {
+    QM,  ///< Quality Management - no functional safety requirement
+    A,   ///< ASIL A - lowest integrity level
+    B,   ///< ASIL B - moderate integrity level
+    C,   ///< ASIL C - high integrity level
+    D    ///< ASIL D - highest integrity level
+};
+
 // String conversion helpers
 /**
  * @brief Converts an AlertSeverity enum value to its string representation.
@@ -51,6 +64,22 @@ inline std::string severityToString(AlertSeverity severity) {
         case AlertSeverity::WARNING: return "WARNING";
         case AlertSeverity::CRITICAL: return "CRITICAL";
         default: return "UNKNOWN";
+    }
+}
+
+/**
+ * @brief Converts an ASILLevel to its ISO 26262 string representation.
+ * @param level The ASILLevel value to convert.
+ * @return std::string e.g., "ASIL D", "ASIL B", "QM"
+ */
+inline std::string asilToString(ASILLevel level) {
+    switch(level) {
+        case ASILLevel::QM: return "QM";
+        case ASILLevel::A:  return "ASIL A";
+        case ASILLevel::B:  return "ASIL B";
+        case ASILLevel::C:  return "ASIL C";
+        case ASILLevel::D:  return "ASIL D";
+        default: return "QM";
     }
 }
 
