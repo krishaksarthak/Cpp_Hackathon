@@ -69,6 +69,7 @@ static std::atomic<bool> g_running{true};
 
 /**
  * @brief Signal handler for Ctrl+C (SIGINT) - graceful shutdown
+ * @param signum The signal number received
  */
 void signalHandler(int signum) {
     (void)signum; // Suppress unused parameter warning
@@ -92,6 +93,7 @@ void printBanner() {
 
 /**
  * @brief Determine the data directory path relative to the executable
+ * @return std::string The relative path to the data directory
  */
 std::string findDataDir() {
     // Try several common locations
@@ -114,6 +116,9 @@ std::string findDataDir() {
 /**
  * @brief Creates a directory cross-platform.
  * Replaces system() calls with safe API calls (no shell injection risk).
+ * @param path The path of the directory to create
+ * @return true If successful or directory already exists
+ * @return false If creation failed
  */
 bool createDirectory(const std::string& path) {
 #ifdef _WIN32
@@ -123,6 +128,10 @@ bool createDirectory(const std::string& path) {
 #endif
 }
 
+/**
+ * @brief Main execution entry point for the Vehicle Monitoring System
+ * @return int Exit code (0 on success, non-zero on error)
+ */
 int main() {
     // Install signal handler for graceful shutdown
     std::signal(SIGINT, signalHandler);

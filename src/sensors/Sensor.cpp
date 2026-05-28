@@ -31,6 +31,7 @@ Sensor::~Sensor() {
     --s_sensorCount;
 }
 
+// This function provides the implementation for performUpdate
 void Sensor::performUpdate() {
     try {
         update();
@@ -43,10 +44,12 @@ void Sensor::performUpdate() {
     }
 }
 
+// This function provides the implementation for getStatusString
 std::string Sensor::getStatusString() const {
     return m_healthy ? "ONLINE" : "OFFLINE";
 }
 
+// This function provides the implementation for getSensorCount
 int Sensor::getSensorCount() {
     return s_sensorCount;
 }

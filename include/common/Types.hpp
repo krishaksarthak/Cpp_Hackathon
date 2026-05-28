@@ -40,6 +40,11 @@ enum class SeatbeltState {
 };
 
 // String conversion helpers
+/**
+ * @brief Converts an AlertSeverity enum value to its string representation.
+ * @param severity The AlertSeverity value to convert.
+ * @return std::string The string representation of the severity.
+ */
 inline std::string severityToString(AlertSeverity severity) {
     switch(severity) {
         case AlertSeverity::INFO: return "INFO";
@@ -49,6 +54,11 @@ inline std::string severityToString(AlertSeverity severity) {
     }
 }
 
+/**
+ * @brief Converts a SensorType enum value to its string representation.
+ * @param type The SensorType value to convert.
+ * @return std::string The string representation of the sensor type.
+ */
 inline std::string sensorTypeToString(SensorType type) {
     switch(type) {
         case SensorType::ENGINE_TEMPERATURE: return "Engine Temperature";

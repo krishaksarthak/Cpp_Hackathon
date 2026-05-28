@@ -1,7 +1,10 @@
 #include "alerts/DTC.hpp"
+#include "common/JsonParser.hpp"
+#include <iostream>
 
 namespace VehicleSystem {
 
+// This function provides the implementation for constructor
 DTCManager::DTCManager() {
     initializeDTCMappings();
 }
@@ -51,16 +54,19 @@ void DTCManager::generateDTC(const Alert& alert,
     m_dtcHistory.push_back(dtc);
 }
 
+// This function provides the implementation for getActiveDTCs
 std::vector<DiagnosticTroubleCode> DTCManager::getActiveDTCs() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_activeDTCs;
 }
 
+// This function provides the implementation for getDTCHistory
 std::vector<DiagnosticTroubleCode> DTCManager::getDTCHistory() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_dtcHistory;
 }
 
+// This function provides the implementation for clearDTC
 void DTCManager::clearDTC(const std::string& code) {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_activeDTCs.erase(
@@ -69,6 +75,7 @@ void DTCManager::clearDTC(const std::string& code) {
         m_activeDTCs.end());
 }
 
+// This function provides the implementation for clearAllDTCs
 void DTCManager::clearAllDTCs() {
     std::lock_guard<std::mutex> lock(m_mutex);
     // Mark all as inactive in history before clearing
@@ -78,11 +85,13 @@ void DTCManager::clearAllDTCs() {
     m_activeDTCs.clear();
 }
 
+// This function provides the implementation for getActiveDTCCount
 size_t DTCManager::getActiveDTCCount() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_activeDTCs.size();
 }
 
+// This function provides the implementation for getFormattedDTCList
 std::string DTCManager::getFormattedDTCList() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     if (m_activeDTCs.empty()) return "No active DTCs";
@@ -93,30 +102,43 @@ std::string DTCManager::getFormattedDTCList() const {
     return oss.str();
 }
 
+// This function provides the implementation for initializeDTCMappings
 void DTCManager::initializeDTCMappings() {
-    m_alertToDTCMap["ENGINE OVERHEAT"] = "P0217";
-    m_alertToDTCMap["LOW BATTERY"] = "P0562";
-    m_alertToDTCMap["LOW TIRE PRESSURE"] = "C0035";
-    m_alertToDTCMap["OVERSPEED"] = "P0128";
-    m_alertToDTCMap["DOOR OPEN WARNING"] = "B0001";
-    m_alertToDTCMap["SEATBELT WARNING"] = "U0001";
+    std::string paths[] = { "data/dtc_codes.json", "../data/dtc_codes.json", "../../data/dtc_codes.json" };
+    bool loaded = false;
 
-    m_dtcDescriptions["P0217"] = "Engine Coolant Over Temperature Condition";
-    m_dtcDescriptions["P0562"] = "System Voltage Low";
-    m_dtcDescriptions["P0128"] = "Coolant Thermostat Temperature Below Regulating Temperature";
-    m_dtcDescriptions["C0035"] = "Left Front Wheel Speed Sensor Circuit";
-    m_dtcDescriptions["B0001"] = "Driver Airbag Circuit Short to Ground";
-    m_dtcDescriptions["U0001"] = "High Speed CAN Communication Bus";
+    for (const auto& path : paths) {
+        try {
+            auto json = JsonValue::parseFile(path);
+            if (json.hasKey("dtc_definitions")) {
+                const auto& dtcs = json["dtc_definitions"].getObject();
+                for (const auto& pair : dtcs) {
+                    std::string code = pair.first;
+                    const auto& data = pair.second;
+                    
+                    m_dtcDescriptions[code] = data["description"].get("Unknown");
+                    m_dtcCategories[code] = data["category"].get("Unknown");
+                    
+                    if (data.hasKey("trigger")) {
+                        m_alertToDTCMap[data["trigger"].get("")] = code;
+                    }
+                }
+                loaded = true;
+                break;
+            }
+        } catch (...) {
+            // Ignore and try next path
+        }
+    }
 
-    m_dtcCategories["P0217"] = "Powertrain";
-    m_dtcCategories["P0562"] = "Electrical";
-    m_dtcCategories["P0128"] = "Powertrain";
-    m_dtcCategories["C0035"] = "Chassis";
-    m_dtcCategories["B0001"] = "Body";
-    m_dtcCategories["U0001"] = "Network";
+    if (!loaded) {
+        std::cerr << "[WARN] Could not load dtc_codes.json. DTCs will not be generated.\n";
+    }
 }
 
+// This function provides the implementation for mapAlertToDTC
 std::string DTCManager::mapAlertToDTC(const Alert& alert) const {
+// This function provides the implementation for destructor
     for (const auto& pair : m_alertToDTCMap) {
         if (alert.getMessage().find(pair.first) != std::string::npos) {
             return pair.second;
@@ -125,11 +147,13 @@ std::string DTCManager::mapAlertToDTC(const Alert& alert) const {
     return "";
 }
 
+// This function provides the implementation for getDTCDescription
 std::string DTCManager::getDTCDescription(const std::string& code) const {
     auto it = m_dtcDescriptions.find(code);
     return it != m_dtcDescriptions.end() ? it->second : "Unknown DTC";
 }
 
+// This function provides the implementation for getDTCCategory
 std::string DTCManager::getDTCCategory(const std::string& code) const {
     auto it = m_dtcCategories.find(code);
     return it != m_dtcCategories.end() ? it->second : "Unknown";

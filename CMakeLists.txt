@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16)
 project(VehicleMonitoringSystem VERSION 1.0 LANGUAGES CXX)
 
 # C++17 Standard

@@ -17,21 +17,30 @@ std::string getCurrentTimestamp();
 
 /**
  * @brief Generate random integer in range [min, max]
+ * @param min The minimum value (inclusive)
+ * @param max The maximum value (inclusive)
+ * @return int The randomly generated integer
  */
 int getRandomInt(int min, int max);
 
 /**
  * @brief Generate random double in range [min, max]
+ * @param min The minimum value (inclusive)
+ * @param max The maximum value (inclusive)
+ * @return double The randomly generated double
  */
 double getRandomDouble(double min, double max);
 
 /**
  * @brief Sleep for specified milliseconds
+ * @param milliseconds The duration to sleep in milliseconds
  */
 void sleepMs(int milliseconds);
 
 /**
  * @brief Convert timestamp to string
+ * @param tp The time point to convert
+ * @return std::string The formatted timestamp string
  */
 std::string timestampToString(const std::chrono::system_clock::time_point& tp);
 

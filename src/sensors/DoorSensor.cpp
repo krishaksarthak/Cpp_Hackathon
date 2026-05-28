@@ -10,6 +10,7 @@ DoorSensor::DoorSensor(SensorID id)
     m_currentValue = 0.0; // 0 = CLOSED, 1 = OPEN
 }
 
+// This function provides the implementation for update
 void DoorSensor::update() {
     // 10% chance of state change each update
     if (Utils::getRandomInt(1, 100) <= 10) {
@@ -19,10 +20,12 @@ void DoorSensor::update() {
     }
 }
 
+// This function provides the implementation for getValueString
 std::string DoorSensor::getValueString() const {
     return (m_doorState == DoorState::OPEN) ? "OPEN" : "CLOSED";
 }
 
+// This function provides the implementation for display
 std::string DoorSensor::display() const {
     std::ostringstream oss;
     oss << std::setw(22) << std::left << m_name << " "
@@ -30,6 +33,7 @@ std::string DoorSensor::display() const {
     return oss.str();
 }
 
+// This function provides the implementation for clone
 std::unique_ptr<Sensor> DoorSensor::clone() const {
     return std::make_unique<DoorSensor>(*this);
 }

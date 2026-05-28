@@ -5,6 +5,7 @@
 
 namespace VehicleSystem {
 
+// This function provides the implementation for evaluateConditions
 std::vector<Alert> AlertManager::evaluateConditions(
     const std::vector<std::unique_ptr<Sensor>>& sensors) {
     std::lock_guard<std::mutex> lock(m_mutex);
@@ -141,26 +142,32 @@ std::vector<Alert> AlertManager::evaluateConditions(
     return newAlerts;
 }
 
+// This function provides the implementation for getActiveAlerts
 std::vector<Alert> AlertManager::getActiveAlerts() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_activeAlerts;
 }
 
+// This function provides the implementation for getAlertHistory
 std::vector<Alert> AlertManager::getAlertHistory() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_alertHistory;
 }
 
+// This function provides the implementation for getActiveAlertCount
 size_t AlertManager::getActiveAlertCount() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_activeAlerts.size();
 }
 
+// This function provides the implementation for getTotalAlertCount
 size_t AlertManager::getTotalAlertCount() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_alertHistory.size();
 }
+// This function provides the implementation for destructor
 
+// This function provides the implementation for clearResolvedAlerts
 void AlertManager::clearResolvedAlerts() {
     std::lock_guard<std::mutex> lock(m_mutex);
     // STL algorithm: remove_if with lambda
@@ -180,6 +187,7 @@ std::vector<Alert> AlertManager::filterAlerts(AlertSeverity severity) const {
     return filtered;
 }
 
+// This function provides the implementation for hasActiveAlert
 bool AlertManager::hasActiveAlert(const std::string& prefix) const {
     // Lambda with std::any_of
     return std::any_of(m_activeAlerts.begin(), m_activeAlerts.end(),
@@ -188,9 +196,11 @@ bool AlertManager::hasActiveAlert(const std::string& prefix) const {
         });
 }
 
+// This function provides the implementation for resolveAlert
 void AlertManager::resolveAlert(const std::string& prefix) {
     // Lambda with std::for_each
     std::for_each(m_activeAlerts.begin(), m_activeAlerts.end(),
+// This function provides the implementation for destructor
         [&prefix](Alert& a) {
             if (a.isActive() && a.getMessage().find(prefix) != std::string::npos) {
                 a.deactivate();
@@ -203,6 +213,7 @@ void AlertManager::resolveAlert(const std::string& prefix) {
         m_activeAlerts.end());
 }
 
+// This function provides the implementation for formatValue
 std::string AlertManager::formatValue(double val) {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(1) << val;

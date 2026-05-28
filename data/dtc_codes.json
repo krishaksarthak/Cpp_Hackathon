@@ -3,32 +3,38 @@
     "P0217": {
       "description": "Engine Coolant Over Temperature Condition",
       "severity": "CRITICAL",
-      "category": "Powertrain"
+      "category": "Powertrain",
+      "trigger": "ENGINE OVERHEAT"
     },
     "P0562": {
       "description": "System Voltage Low",
       "severity": "WARNING",
-      "category": "Electrical"
+      "category": "Electrical",
+      "trigger": "LOW BATTERY"
     },
-    "P0128": {
-      "description": "Coolant Thermostat Temperature Below Regulating Temperature",
-      "severity": "INFO",
-      "category": "Powertrain"
-    },
-    "C0035": {
-      "description": "Left Front Wheel Speed Sensor Circuit",
+    "P0219": {
+      "description": "Engine Overspeed Condition",
       "severity": "WARNING",
-      "category": "Chassis"
+      "category": "Powertrain",
+      "trigger": "OVERSPEED"
     },
-    "B0001": {
-      "description": "Driver Airbag Circuit Short to Ground",
-      "severity": "CRITICAL",
-      "category": "Body"
+    "C0077": {
+      "description": "Low Tire Pressure Warning",
+      "severity": "WARNING",
+      "category": "Chassis",
+      "trigger": "LOW TIRE PRESSURE"
     },
-    "U0001": {
-      "description": "High Speed CAN Communication Bus",
+    "B1026": {
+      "description": "Door Ajar Indicator Circuit",
       "severity": "CRITICAL",
-      "category": "Network"
+      "category": "Body",
+      "trigger": "DOOR OPEN WARNING"
+    },
+    "B0075": {
+      "description": "Driver Seatbelt Indicator Circuit Open",
+      "severity": "WARNING",
+      "category": "Body",
+      "trigger": "SEATBELT WARNING"
     }
   }
 }

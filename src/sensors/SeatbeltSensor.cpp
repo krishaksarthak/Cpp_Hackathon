@@ -10,6 +10,7 @@ SeatbeltSensor::SeatbeltSensor(SensorID id)
     m_currentValue = 1.0; // 1 = LOCKED, 0 = UNLOCKED
 }
 
+// This function provides the implementation for update
 void SeatbeltSensor::update() {
     // 8% chance of state change each update
     if (Utils::getRandomInt(1, 100) <= 8) {
@@ -19,10 +20,12 @@ void SeatbeltSensor::update() {
     }
 }
 
+// This function provides the implementation for getValueString
 std::string SeatbeltSensor::getValueString() const {
     return (m_seatbeltState == SeatbeltState::LOCKED) ? "LOCKED" : "UNLOCKED";
 }
 
+// This function provides the implementation for display
 std::string SeatbeltSensor::display() const {
     std::ostringstream oss;
     oss << std::setw(22) << std::left << m_name << " "
@@ -30,6 +33,7 @@ std::string SeatbeltSensor::display() const {
     return oss.str();
 }
 
+// This function provides the implementation for clone
 std::unique_ptr<Sensor> SeatbeltSensor::clone() const {
     return std::make_unique<SeatbeltSensor>(*this);
 }

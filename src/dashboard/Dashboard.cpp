@@ -3,8 +3,26 @@
 #include "common/Colors.hpp"
 #include <cstdlib>
 #include <fstream>
+#include <regex>
 
 namespace VehicleSystem {
+
+static std::string stripAnsi(const std::string& input) {
+    std::string result;
+    bool inEscape = false;
+    for (size_t i = 0; i < input.size(); ++i) {
+        if (input[i] == '\033') {
+            inEscape = true;
+        } else if (inEscape) {
+            if (input[i] == 'm') {
+                inEscape = false;
+            }
+        } else {
+            result += input[i];
+        }
+    }
+    return result;
+}
 
 void Dashboard::display(const std::vector<std::unique_ptr<Sensor>>& sensors,
                  const AlertManager& alertManager,
@@ -28,10 +46,10 @@ void Dashboard::display(const std::vector<std::unique_ptr<Sensor>>& sensors,
     std::string output = oss.str();
     std::cout << output << std::flush;
 
-    // Log the exact terminal output to the logs folder
+    // Log the exact terminal output to the logs folder (stripping ANSI colors)
     std::ofstream termLog("logs/terminal_output.log", std::ios::out | std::ios::app);
     if (termLog.is_open()) {
-        termLog << output << "\n";
+        termLog << stripAnsi(output) << "\n";
     }
 }
 

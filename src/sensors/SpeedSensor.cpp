@@ -4,11 +4,13 @@
 
 namespace VehicleSystem {
 
+// This function provides the implementation for constructor
 SpeedSensor::SpeedSensor(SensorID id)
     : Sensor(id, "Vehicle Speed", SensorType::VEHICLE_SPEED) {
     m_currentValue = 72.0;
 }
 
+// This function provides the implementation for update
 void SpeedSensor::update() {
     double delta = Utils::getRandomDouble(-15.0, 18.0);
     m_currentValue += delta;
@@ -16,12 +18,14 @@ void SpeedSensor::update() {
     if (m_currentValue > 200.0) m_currentValue = 200.0;
 }
 
+// This function provides the implementation for getValueString
 std::string SpeedSensor::getValueString() const {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(0) << m_currentValue;
     return oss.str();
 }
 
+// This function provides the implementation for display
 std::string SpeedSensor::display() const {
     std::ostringstream oss;
     oss << std::setw(22) << std::left << m_name << " "
@@ -30,6 +34,7 @@ std::string SpeedSensor::display() const {
     return oss.str();
 }
 
+// This function provides the implementation for clone
 std::unique_ptr<Sensor> SpeedSensor::clone() const {
     return std::make_unique<SpeedSensor>(*this);
 }
