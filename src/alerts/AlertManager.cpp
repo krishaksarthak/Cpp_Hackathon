@@ -58,9 +58,9 @@ std::vector<Alert> AlertManager::evaluateConditions(
     // Condition 1: Engine Overheat [ISO 26262 ASIL C]
     // Safety Goal SG-01: Detect within 500ms, prevent thermal runaway
     if (engineTemp > currentEngineTempCritical) {
-        if (!hasActiveAlert("ENGINE OVERHEAT")) {
+        if (!hasActiveAlert("CRITICAL ENGINE OVERHEAT")) {
             Alert alert(AlertSeverity::CRITICAL,
-                       "ENGINE OVERHEAT - Temp: " + formatValue(engineTemp) + "C",
+                       "CRITICAL ENGINE OVERHEAT - Temp: " + formatValue(engineTemp) + "C",
                        SensorType::ENGINE_TEMPERATURE, engineTemp,
                        ASILLevel::C);
             m_activeAlerts.push_back(alert);
@@ -68,15 +68,15 @@ std::vector<Alert> AlertManager::evaluateConditions(
             newAlerts.push_back(alert);
         }
     } else {
-        resolveAlert("ENGINE OVERHEAT");
+        resolveAlert("CRITICAL ENGINE OVERHEAT");
     }
 
     // Condition 2: Low Battery [ISO 26262 ASIL B]
     // Safety Goal SG-02: Warn before complete power loss
     if (batteryVoltage < currentBatteryVoltageMin) {
-        if (!hasActiveAlert("LOW BATTERY")) {
+        if (!hasActiveAlert("LOW BATTERY WARNING")) {
             Alert alert(AlertSeverity::WARNING,
-                       "LOW BATTERY - Voltage: " + formatValue(batteryVoltage) + "V",
+                       "LOW BATTERY WARNING - Voltage: " + formatValue(batteryVoltage) + "V",
                        SensorType::BATTERY_VOLTAGE, batteryVoltage,
                        ASILLevel::B);
             m_activeAlerts.push_back(alert);
@@ -84,7 +84,7 @@ std::vector<Alert> AlertManager::evaluateConditions(
             newAlerts.push_back(alert);
         }
     } else {
-        resolveAlert("LOW BATTERY");
+        resolveAlert("LOW BATTERY WARNING");
     }
 
     // Condition 3: Low Tire Pressure [ISO 26262 ASIL B]
