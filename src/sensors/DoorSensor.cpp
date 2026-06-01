@@ -16,8 +16,8 @@ void DoorSensor::update() {
     if (Utils::getRandomInt(1, 100) <= 10) {
         m_doorState = (m_doorState == DoorState::CLOSED)
                       ? DoorState::OPEN : DoorState::CLOSED;
-        m_currentValue = (m_doorState == DoorState::OPEN) ? 1.0 : 0.0;
     }
+    m_currentValue = (m_doorState == DoorState::OPEN) ? 1.0 : 0.0;
 }
 
 // This function provides the implementation for getValueString

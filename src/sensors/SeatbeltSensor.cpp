@@ -16,8 +16,8 @@ void SeatbeltSensor::update() {
     if (Utils::getRandomInt(1, 100) <= 8) {
         m_seatbeltState = (m_seatbeltState == SeatbeltState::LOCKED)
                           ? SeatbeltState::UNLOCKED : SeatbeltState::LOCKED;
-        m_currentValue = (m_seatbeltState == SeatbeltState::LOCKED) ? 1.0 : 0.0;
     }
+    m_currentValue = (m_seatbeltState == SeatbeltState::LOCKED) ? 1.0 : 0.0;
 }
 
 // This function provides the implementation for getValueString
