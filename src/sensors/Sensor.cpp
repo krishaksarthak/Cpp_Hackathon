@@ -34,7 +34,9 @@ Sensor::~Sensor() {
 // This function provides the implementation for performUpdate
 void Sensor::performUpdate() {
     try {
-        update();
+        if (!m_isForced) {
+            update(); 
+        }
         m_lastUpdateTime = std::chrono::system_clock::now();
         ++m_updateCount;
         m_healthy = true;
@@ -52,6 +54,15 @@ std::string Sensor::getStatusString() const {
 // This function provides the implementation for getSensorCount
 int Sensor::getSensorCount() {
     return s_sensorCount;
+}
+
+void Sensor::injectTestValue(double value) {
+    m_currentValue = value;
+    m_isForced = true;
+}
+
+void Sensor::clearTestValue() {
+    m_isForced = false;
 }
 
 } // namespace VehicleSystem

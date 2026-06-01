@@ -67,6 +67,12 @@ public:
     /** @brief Template method: performs update and records metadata */
     void performUpdate();
 
+    /** @brief Force the sensor to a specific value for testing */
+    void injectTestValue(double value);
+    
+    /** @brief Return the sensor to normal random simulation */
+    void clearTestValue();
+
     SensorID getId() const { return m_id; }
     std::string getName() const { return m_name; }
     SensorType getType() const { return m_type; }
@@ -88,6 +94,7 @@ protected:
     Timestamp m_lastUpdateTime;
     bool m_healthy;
     uint64_t m_updateCount;
+    bool m_isForced = false;
 
     /** @brief Static member tracking total sensor instances (RAII) */
     static int s_sensorCount;

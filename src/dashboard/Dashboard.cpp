@@ -51,6 +51,48 @@ void Dashboard::display(const std::vector<std::unique_ptr<Sensor>>& sensors,
     if (termLog.is_open()) {
         termLog << stripAnsi(output) << "\n";
     }
+    logTelemetryJson(sensors, alertManager, dtcManager, activeProfile);
+}
+
+void Dashboard::logTelemetryJson(const std::vector<std::unique_ptr<Sensor>>& sensors,
+                                 const AlertManager& alertManager,
+                                 const DTCManager& dtcManager,
+                                 const std::string& activeProfile) {
+    // Open in append mode
+    std::ofstream jsonLog("logs/telemetry.json", std::ios::out | std::ios::app);
+    if (!jsonLog.is_open()) return;
+
+    // Default values in case a sensor is missing
+    double speed = 0, temp = 0, battery = 0;
+    
+    // Extract sensor values dynamically via polymorphism
+    for (const auto& sensor : sensors) {
+        if (sensor->getType() == SensorType::VEHICLE_SPEED) {
+            speed = sensor->getValue();
+        } else if (sensor->getType() == SensorType::ENGINE_TEMPERATURE) {
+            temp = sensor->getValue();
+        } else if (sensor->getType() == SensorType::BATTERY_VOLTAGE) {
+            battery = sensor->getValue();
+        }
+    }
+
+    // Write Newline Delimited JSON (NDJSON)
+    // std::fixed and std::setprecision keep the JSON numbers clean
+    jsonLog << "{"
+            << "\"timestamp\":\"" << Utils::getCurrentTimestamp() << "\","
+            << "\"profile\":\"" << activeProfile << "\","
+            << "\"sensors\":{"
+            << "\"speed_kmh\":" << std::fixed << std::setprecision(1) << speed << ","
+            << "\"engine_temp_c\":" << temp << ","
+            << "\"battery_v\":" << battery 
+            << "},"
+            << "\"diagnostics\":{"
+            << "\"active_alerts\":" << alertManager.getActiveAlertCount() << ","
+            << "\"active_dtcs\":" << dtcManager.getActiveDTCCount()
+            << "}"
+            << "}\n";
+            
+    jsonLog.flush(); // Ensure it writes to disk immediately (crash-safe)
 }
 
 void Dashboard::clearScreen() {

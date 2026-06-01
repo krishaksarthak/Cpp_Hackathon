@@ -12,7 +12,8 @@
  * @author Team C-10
  * @version 1.0
  */
-
+#include <thread>
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -21,6 +22,7 @@
 #include <cstdlib>
 #include <atomic>
 #include <fstream>
+#include <future>
 #ifdef _WIN32
 #include <conio.h>
 #include <direct.h>   // _mkdir on Windows
@@ -126,6 +128,73 @@ bool createDirectory(const std::string& path) {
 #else
     return (mkdir(path.c_str(), 0755) == 0 || errno == EEXIST);
 #endif
+}
+
+
+
+void playTestScenario(const std::string& filepath, 
+                      std::vector<std::unique_ptr<Sensor>>& sensors, 
+                      EventLogger& logger) {
+    
+    std::ifstream file(filepath);
+    if (!file.is_open()) {
+        logger.logEvent(AlertSeverity::WARNING, "Could not open scenario file: " + filepath, "TEST_RIG");
+        return;
+    }
+
+    logger.logEvent(AlertSeverity::INFO, "Started Test Scenario: " + filepath, "TEST_RIG");
+
+    std::string line;
+    while (std::getline(file, line) && g_running.load()) {
+        // Skip comments and empty lines
+        if (line.empty() || line[0] == '#') continue;
+
+        std::stringstream ss(line);
+        std::string delayStr, sensorTypeStr, valueStr;
+
+        if (std::getline(ss, delayStr, ',') &&
+            std::getline(ss, sensorTypeStr, ',') &&
+            std::getline(ss, valueStr, ',')) {
+
+            // 1. Wait for the specified delay
+            int delayMs = std::stoi(delayStr);
+            Utils::sleepMs(delayMs);
+            if (!g_running.load()) break; // Exit if system is shutting down
+
+            // Trim spaces from the sensor type string
+            sensorTypeStr.erase(0, sensorTypeStr.find_first_not_of(" \t"));
+            sensorTypeStr.erase(sensorTypeStr.find_last_not_of(" \t") + 1);
+            
+            double value = std::stod(valueStr);
+
+            // 2. Clear faults or inject new ones
+            if (sensorTypeStr == "CLEAR") {
+                for (auto& s : sensors) s->clearTestValue();
+                logger.logEvent(AlertSeverity::INFO, "TEST SCRIPT: Cleared all faults", "TEST_RIG");
+            } else {
+                // Map string to SensorType
+                SensorType targetType;
+                if (sensorTypeStr == "ENGINE_TEMPERATURE") targetType = SensorType::ENGINE_TEMPERATURE;
+                else if (sensorTypeStr == "BATTERY_VOLTAGE") targetType = SensorType::BATTERY_VOLTAGE;
+                else if (sensorTypeStr == "VEHICLE_SPEED") targetType = SensorType::VEHICLE_SPEED;
+                else if (sensorTypeStr == "TIRE_PRESSURE") targetType = SensorType::TIRE_PRESSURE;
+                else if (sensorTypeStr == "DOOR_STATUS") targetType = SensorType::DOOR_STATUS;
+                else if (sensorTypeStr == "SEATBELT_STATUS") targetType = SensorType::SEATBELT_STATUS;
+                else continue; // Unknown sensor
+
+                // Inject the value
+                for (auto& s : sensors) {
+                    if (s->getType() == targetType) {
+                        s->injectTestValue(value);
+                        logger.logEvent(AlertSeverity::WARNING, 
+                            "TEST SCRIPT: Forced " + sensorTypeStr + " to " + std::to_string(value), 
+                            "TEST_RIG");
+                    }
+                }
+            }
+        }
+    }
+    logger.logEvent(AlertSeverity::INFO, "Test Scenario Completed.", "TEST_RIG");
 }
 
 /**
@@ -259,6 +328,18 @@ int main() {
         // Start all 4 worker threads
         threadManager.start();
 
+        // ===== START =====
+        std::cout << "\n[SYSTEM] All subsystems initialized. Starting threads...\n";
+        std::cout << "[SYSTEM] Press Ctrl+C for graceful shutdown.\n\n";
+        
+        logger.logEvent(AlertSeverity::INFO, "System startup complete", "MAIN");
+        
+        // Start all 4 worker threads
+        threadManager.start();
+
+        // Add this to store our asynchronous test scripts!
+        std::vector<std::future<void>> scriptFutures;
+
         // ===== Main Loop (waits for shutdown signal + keyboard input) =====
         while (g_running.load()) {
             // Poll for 500ms in 50ms increments to allow responsive keyboard input
@@ -281,7 +362,14 @@ int main() {
                     } else if (c == 'q' || c == 'Q') {
                         // Graceful quit via keyboard
                         g_running.store(false);
+                    } else if (c == 't' || c == 'T') {
+                        std::string scriptPath = dataDir + "/test_scenario.csv";
+                        // Launch the scenario player asynchronously instead of using std::thread
+                        scriptFutures.push_back(
+                            std::async(std::launch::async, playTestScenario, scriptPath, std::ref(sensors), std::ref(logger))
+                        );
                     }
+
                 }
 #endif
             }
