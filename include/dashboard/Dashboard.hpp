@@ -65,6 +65,10 @@ private:
                            const VehicleStatistics& stats);
     void displayWatchdog(std::ostringstream& oss, const Watchdog& watchdog);
     void displayFooter(std::ostringstream& oss);
+    void logTelemetryJson(const std::vector<std::unique_ptr<Sensor>>& sensors,
+                          const AlertManager& alertManager,
+                          const DTCManager& dtcManager,
+                          const std::string& activeProfile);
 
     /** @brief Determine status label based on sensor type and value */
     std::string getSensorStatus(const Sensor* sensor) const;

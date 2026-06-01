@@ -1,0 +1,9 @@
+# format: delay_ms, sensor_type, injected_value
+# Wait 2 seconds, then simulate speed up
+1000, VEHICLE_SPEED, 85.0
+# Wait 3 more seconds, trigger overspeed
+1000, VEHICLE_SPEED, 125.0
+# Wait 2 seconds, trigger a simultaneous door open fault
+1000, DOOR_STATUS, 1.0
+# Wait 4 seconds, clear all faults and return to normal
+1000, CLEAR, 0.0
