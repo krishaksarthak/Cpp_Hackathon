@@ -8,10 +8,10 @@ std::string getCurrentTimestamp() {
     return timestampToString(now);
 }
 
-int getRandomInt(int min, int max) {
+int32_t getRandomInt(int32_t min, int32_t max) {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(min, max);
+    std::uniform_int_distribution<int32_t> dis(min, max);
     return dis(gen);
 }
 
@@ -28,7 +28,7 @@ double getRandomDouble(double min, double max) {
 #include <unistd.h>
 #endif
 
-void sleepMs(int milliseconds) {
+void sleepMs(uint32_t milliseconds) {
 #ifdef _WIN32
     Sleep(milliseconds);
 #else

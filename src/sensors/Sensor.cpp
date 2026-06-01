@@ -2,7 +2,7 @@
 
 namespace VehicleSystem {
 
-int Sensor::s_sensorCount = 0;
+uint32_t Sensor::s_sensorCount = 0;
 
 Sensor::Sensor(SensorID id, const std::string& name, SensorType type)
     : m_id(id), m_name(name), m_type(type), m_currentValue(0.0),
@@ -52,7 +52,7 @@ std::string Sensor::getStatusString() const {
 }
 
 // This function provides the implementation for getSensorCount
-int Sensor::getSensorCount() {
+uint32_t Sensor::getSensorCount() {
     return s_sensorCount;
 }
 

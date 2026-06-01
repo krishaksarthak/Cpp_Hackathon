@@ -11,6 +11,7 @@
 #include <sstream>
 #include <iomanip>
 #include <functional>
+#include <cstdint>
 #include "common/Types.hpp"
 #include "common/SensorDataBuffer.hpp"
 
@@ -50,7 +51,7 @@ public:
     double getMinTirePressure() const;
     size_t getTotalAlerts() const;
     double getTotalDistance() const;
-    std::map<std::string, int> getAlertFrequency() const;
+    std::map<std::string, uint32_t> getAlertFrequency() const;
 
     /** @brief Get the most frequently triggered alert type (uses STL max_element + lambda) */
     std::string getMostFrequentAlert() const;
@@ -82,8 +83,8 @@ private:
 
     // Alert tracking
     size_t m_totalAlerts;
-    std::map<std::string, int> m_alertFrequency;
-    std::map<std::string, int> m_severityCount;
+    std::map<std::string, uint32_t> m_alertFrequency;
+    std::map<std::string, uint32_t> m_severityCount;
     std::set<std::string> m_uniqueAlertTypes; // Demonstrates std::set
 
     // Timing

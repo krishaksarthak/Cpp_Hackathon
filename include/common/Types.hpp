@@ -3,6 +3,7 @@
 #include <string>
 #include <chrono>
 #include <memory>
+#include <cstdint>
 #include "common/Win32Threads.hpp"
 
 namespace VehicleSystem {

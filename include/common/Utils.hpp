@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <sstream>
 #include <random>
+#include <cstdint>
 
 namespace VehicleSystem {
 namespace Utils {
@@ -19,9 +20,9 @@ std::string getCurrentTimestamp();
  * @brief Generate random integer in range [min, max]
  * @param min The minimum value (inclusive)
  * @param max The maximum value (inclusive)
- * @return int The randomly generated integer
+ * @return int32_t The randomly generated integer
  */
-int getRandomInt(int min, int max);
+int32_t getRandomInt(int32_t min, int32_t max);
 
 /**
  * @brief Generate random double in range [min, max]
@@ -35,7 +36,7 @@ double getRandomDouble(double min, double max);
  * @brief Sleep for specified milliseconds
  * @param milliseconds The duration to sleep in milliseconds
  */
-void sleepMs(int milliseconds);
+void sleepMs(uint32_t milliseconds);
 
 /**
  * @brief Convert timestamp to string

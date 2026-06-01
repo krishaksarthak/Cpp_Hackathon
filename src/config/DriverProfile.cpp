@@ -17,7 +17,7 @@ bool DriverProfile::loadProfile(const std::string& profilePath) {
         if (data.hasKey("thresholds")) {
             const auto& thresholds = data["thresholds"];
             if (thresholds.hasKey("speed_limit"))
-                m_speedLimit = thresholds["speed_limit"].getInt();
+                m_speedLimit = thresholds["speed_limit"].getUint32();
             if (thresholds.hasKey("engine_temp_warning"))
                 m_engineTempWarning = thresholds["engine_temp_warning"].getInt();
             if (thresholds.hasKey("engine_temp_critical"))

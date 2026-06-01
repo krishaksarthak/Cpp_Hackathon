@@ -7,6 +7,7 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+#include <cstdint>
 #include "common/Types.hpp"
 
 namespace VehicleSystem {
@@ -26,7 +27,7 @@ public:
      * @brief Construct watchdog with specified timeout
      * @param timeoutMs Maximum time (ms) between heartbeats before declaring unhealthy
      */
-    explicit Watchdog(int timeoutMs = 5000);
+    explicit Watchdog(uint32_t timeoutMs = 5000);
 
     ~Watchdog() = default;
 
@@ -82,13 +83,13 @@ public:
     std::string getUptime() const;
 
     /** @brief Get timeout value */
-    int getTimeoutMs() const { return m_timeoutMs; }
+    uint32_t getTimeoutMs() const { return m_timeoutMs; }
 
     /** @brief Set timeout value */
-    void setTimeoutMs(int ms) { m_timeoutMs = ms; }
+    void setTimeoutMs(uint32_t ms) { m_timeoutMs = ms; }
 
 private:
-    int m_timeoutMs;
+    uint32_t m_timeoutMs;
     std::chrono::steady_clock::time_point m_startTime;
     std::map<std::string, std::chrono::steady_clock::time_point> m_lastHeartbeat;
     std::map<std::string, bool> m_threadHealth;

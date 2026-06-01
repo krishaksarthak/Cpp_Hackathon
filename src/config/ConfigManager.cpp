@@ -36,13 +36,26 @@ std::string ConfigManager::getLastError() const {
     return m_lastError;
 }
 
-int ConfigManager::getInt(const std::string& section, const std::string& key, int defaultVal) const {
+int32_t ConfigManager::getInt(const std::string& section, const std::string& key, int32_t defaultVal) const {
     std::lock_guard<std::mutex> lock(m_mutex);
     try {
         if (m_loaded && m_configData.hasKey(section)) {
             const auto& sec = m_configData[section];
             if (sec.hasKey(key)) {
                 return sec[key].getInt();
+            }
+        }
+    } catch (...) {}
+    return defaultVal;
+}
+
+uint32_t ConfigManager::getUint32(const std::string& section, const std::string& key, uint32_t defaultVal) const {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    try {
+        if (m_loaded && m_configData.hasKey(section)) {
+            const auto& sec = m_configData[section];
+            if (sec.hasKey(key)) {
+                return sec[key].getUint32();
             }
         }
     } catch (...) {}

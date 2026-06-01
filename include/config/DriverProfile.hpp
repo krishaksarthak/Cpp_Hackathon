@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
+#include <cstdint>
 #include "common/JsonParser.hpp"
 
 namespace VehicleSystem {
@@ -42,9 +43,9 @@ public:
     // --- Getters ---
     std::string getName() const { return m_name; }
     std::string getDescription() const { return m_description; }
-    int getSpeedLimit() const { return m_speedLimit; }
-    int getEngineTempWarning() const { return m_engineTempWarning; }
-    int getEngineTempCritical() const { return m_engineTempCritical; }
+    uint32_t getSpeedLimit() const { return m_speedLimit; }
+    int32_t getEngineTempWarning() const { return m_engineTempWarning; }
+    int32_t getEngineTempCritical() const { return m_engineTempCritical; }
     bool getAggressiveAccelAlert() const { return m_aggressiveAccelAlert; }
     bool getHarshBrakingAlert() const { return m_harshBrakingAlert; }
     std::string getAlertSensitivity() const { return m_alertSensitivity; }
@@ -62,9 +63,9 @@ public:
 private:
     std::string m_name;
     std::string m_description;
-    int m_speedLimit;
-    int m_engineTempWarning;
-    int m_engineTempCritical;
+    uint32_t m_speedLimit;
+    int32_t m_engineTempWarning;
+    int32_t m_engineTempCritical;
     bool m_aggressiveAccelAlert;
     bool m_harshBrakingAlert;
     std::string m_alertSensitivity;

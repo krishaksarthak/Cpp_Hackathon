@@ -7,6 +7,7 @@
 #include <sstream>
 #include <iomanip>
 #include <iostream>
+#include <cstdint>
 #include "common/Types.hpp"
 #include "sensors/Sensor.hpp"
 #include "alerts/AlertManager.hpp"
@@ -49,8 +50,8 @@ public:
                  const Watchdog& watchdog,
                  const std::string& activeProfile);
 
-    void setRefreshRate(int ms) { m_refreshRateMs = ms; }
-    int getRefreshRate() const { return m_refreshRateMs; }
+    void setRefreshRate(uint32_t ms) { m_refreshRateMs = ms; }
+    uint32_t getRefreshRate() const { return m_refreshRateMs; }
 
 private:
     void clearScreen();
@@ -73,7 +74,7 @@ private:
     /** @brief Determine status label based on sensor type and value */
     std::string getSensorStatus(const Sensor* sensor) const;
 
-    int m_refreshRateMs;
+    uint32_t m_refreshRateMs;
     std::mutex m_displayMutex;
 };
 

@@ -12,8 +12,9 @@ std::vector<Alert> AlertManager::evaluateConditions(
     std::vector<Alert> newAlerts;
 
     // Thread-safe copy of thresholds
-    int currentEngineTempCritical, currentBatteryVoltageMin;
-    int currentTirePressureMin, currentSpeedLimit;
+    int32_t currentEngineTempCritical;
+    double currentBatteryVoltageMin;
+    uint32_t currentTirePressureMin, currentSpeedLimit;
     {
         std::lock_guard<std::mutex> configLock(m_configMutex);
         currentEngineTempCritical = m_engineTempCritical;

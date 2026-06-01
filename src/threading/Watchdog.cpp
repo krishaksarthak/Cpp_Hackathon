@@ -2,7 +2,7 @@
 
 namespace VehicleSystem {
 
-Watchdog::Watchdog(int timeoutMs)
+Watchdog::Watchdog(uint32_t timeoutMs)
     : m_timeoutMs(timeoutMs), m_startTime(std::chrono::steady_clock::now()) {}
 
 void Watchdog::registerThread(const std::string& threadName) {
@@ -98,9 +98,9 @@ size_t Watchdog::getRegisteredThreadCount() const {
 std::string Watchdog::getUptime() const {
     auto now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - m_startTime).count();
-    int hours = static_cast<int>(elapsed / 3600);
-    int minutes = static_cast<int>((elapsed % 3600) / 60);
-    int seconds = static_cast<int>(elapsed % 60);
+    uint32_t hours = static_cast<uint32_t>(elapsed / 3600);
+    uint32_t minutes = static_cast<uint32_t>((elapsed % 3600) / 60);
+    uint32_t seconds = static_cast<uint32_t>(elapsed % 60);
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(2) << hours << ":"
         << std::setw(2) << minutes << ":"

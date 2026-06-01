@@ -7,6 +7,7 @@
 #include <memory>
 #include <algorithm>
 #include <functional>
+#include <cstdint>
 #include "common/Types.hpp"
 #include "alerts/Alert.hpp"
 #include "sensors/Sensor.hpp"
@@ -73,14 +74,14 @@ public:
     std::vector<Alert> filterAlerts(AlertSeverity severity) const;
 
     // --- Configurable thresholds (for driver profiles) ---
-    void setSpeedLimit(int limit) { std::lock_guard<std::mutex> lock(m_configMutex); m_speedLimit = limit; }
-    void setEngineTempCritical(int temp) { std::lock_guard<std::mutex> lock(m_configMutex); m_engineTempCritical = temp; }
-    void setEngineTempWarning(int temp) { std::lock_guard<std::mutex> lock(m_configMutex); m_engineTempWarning = temp; }
+    void setSpeedLimit(uint32_t limit) { std::lock_guard<std::mutex> lock(m_configMutex); m_speedLimit = limit; }
+    void setEngineTempCritical(int32_t temp) { std::lock_guard<std::mutex> lock(m_configMutex); m_engineTempCritical = temp; }
+    void setEngineTempWarning(int32_t temp) { std::lock_guard<std::mutex> lock(m_configMutex); m_engineTempWarning = temp; }
     void setBatteryVoltageMin(double voltage) { std::lock_guard<std::mutex> lock(m_configMutex); m_batteryVoltageMin = voltage; }
-    void setTirePressureMin(int pressure) { std::lock_guard<std::mutex> lock(m_configMutex); m_tirePressureMin = pressure; }
+    void setTirePressureMin(uint32_t pressure) { std::lock_guard<std::mutex> lock(m_configMutex); m_tirePressureMin = pressure; }
 
-    int getSpeedLimit() const { std::lock_guard<std::mutex> lock(m_configMutex); return m_speedLimit; }
-    int getEngineTempCritical() const { std::lock_guard<std::mutex> lock(m_configMutex); return m_engineTempCritical; }
+    uint32_t getSpeedLimit() const { std::lock_guard<std::mutex> lock(m_configMutex); return m_speedLimit; }
+    int32_t getEngineTempCritical() const { std::lock_guard<std::mutex> lock(m_configMutex); return m_engineTempCritical; }
 
 private:
     /** @brief Check if an active alert with given message prefix exists */
@@ -96,11 +97,11 @@ private:
     std::vector<Alert> m_alertHistory;
 
     // Configurable thresholds
-    int m_speedLimit;
-    int m_engineTempCritical;
-    int m_engineTempWarning;
+    uint32_t m_speedLimit;
+    int32_t m_engineTempCritical;
+    int32_t m_engineTempWarning;
     double m_batteryVoltageMin;
-    int m_tirePressureMin;
+    uint32_t m_tirePressureMin;
 
     mutable std::mutex m_mutex;
     mutable std::mutex m_configMutex;

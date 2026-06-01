@@ -6,6 +6,7 @@
 #include <mutex>
 #include <memory>
 #include <algorithm>
+#include <cstdint>
 #include "common/Types.hpp"
 #include "common/Utils.hpp"
 #include "alerts/Alert.hpp"
@@ -44,7 +45,7 @@ struct DiagnosticTroubleCode {
     FreezeFrame freezeFrame;
     Timestamp firstOccurrence;
     Timestamp lastOccurrence;
-    int occurrenceCount;
+    uint32_t occurrenceCount;
     bool active;
 
     DiagnosticTroubleCode()

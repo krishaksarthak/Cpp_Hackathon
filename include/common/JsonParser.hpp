@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <iostream>
+#include <cstdint>
 
 namespace VehicleSystem {
 
@@ -26,7 +27,8 @@ public:
     JsonValue() : m_type(Type::Null) {}
     JsonValue(std::nullptr_t) : m_type(Type::Null) {}
     JsonValue(bool val) : m_type(Type::Bool), m_bool(val) {}
-    JsonValue(int val) : m_type(Type::Int), m_int(val) {}
+    JsonValue(int32_t val) : m_type(Type::Int), m_int(val) {}
+    JsonValue(uint32_t val) : m_type(Type::Int), m_int(static_cast<int32_t>(val)) {}
     JsonValue(double val) : m_type(Type::Double), m_double(val) {}
     JsonValue(const std::string& val) : m_type(Type::String), m_string(val) {}
     JsonValue(const char* val) : m_type(Type::String), m_string(val) {}
@@ -74,10 +76,13 @@ public:
 
     // --- Getters ---
     bool getBool() const { return m_bool; }
-    int getInt() const {
+    int32_t getInt() const {
         if (isInt()) return m_int;
-        if (isDouble()) return static_cast<int>(m_double);
+        if (isDouble()) return static_cast<int32_t>(m_double);
         throw std::runtime_error("JSON value is not a number");
+    }
+    uint32_t getUint32() const {
+        return static_cast<uint32_t>(getInt());
     }
     double getDouble() const {
         if (isDouble()) return m_double;
@@ -92,8 +97,11 @@ public:
     bool get(bool defaultVal) const {
         try { return getBool(); } catch (...) { return defaultVal; }
     }
-    int get(int defaultVal) const {
+    int32_t get(int32_t defaultVal) const {
         try { return getInt(); } catch (...) { return defaultVal; }
+    }
+    uint32_t get(uint32_t defaultVal) const {
+        try { return getUint32(); } catch (...) { return defaultVal; }
     }
     double get(double defaultVal) const {
         try { return getDouble(); } catch (...) { return defaultVal; }
@@ -152,7 +160,7 @@ public:
 private:
     Type m_type;
     bool m_bool = false;
-    int m_int = 0;
+    int32_t m_int = 0;
     double m_double = 0.0;
     std::string m_string;
     Array* m_array = nullptr;
@@ -229,7 +237,7 @@ private:
             return JsonValue(std::stod(numStr));
         } else {
             try {
-                return JsonValue(std::stoi(numStr));
+                return JsonValue(static_cast<int32_t>(std::stol(numStr)));
             } catch (...) {
                 return JsonValue(std::stod(numStr));
             }

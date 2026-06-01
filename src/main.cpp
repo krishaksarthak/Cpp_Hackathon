@@ -1,15 +1,12 @@
 /**
  * @file main.cpp
  * @brief Entry point for the Smart Cabin & Vehicle Health Monitoring System.
- * 
- * Initializes all subsystems, loads configuration, creates sensors,
+ * * Initializes all subsystems, loads configuration, creates sensors,
  * starts the thread manager with 4 worker threads, and handles
  * graceful shutdown via Ctrl+C signal.
- * 
- * Demonstrates: Complete system integration, signal handling,
+ * * Demonstrates: Complete system integration, signal handling,
  * smart pointers, RAII, exception handling, clean shutdown.
- * 
- * @author Team C-10
+ * * @author Team C-10
  * @version 1.0
  */
 #include <thread>
@@ -23,6 +20,8 @@
 #include <atomic>
 #include <fstream>
 #include <future>
+#include <sstream> // Added missing header for std::stringstream inside playTestScenario
+
 #ifdef _WIN32
 #include <conio.h>
 #include <direct.h>   // _mkdir on Windows
@@ -130,8 +129,6 @@ bool createDirectory(const std::string& path) {
 #endif
 }
 
-
-
 void playTestScenario(const std::string& filepath, 
                       std::vector<std::unique_ptr<Sensor>>& sensors, 
                       EventLogger& logger) {
@@ -157,7 +154,7 @@ void playTestScenario(const std::string& filepath,
             std::getline(ss, valueStr, ',')) {
 
             // 1. Wait for the specified delay
-            int delayMs = std::stoi(delayStr);
+            uint32_t delayMs = std::stoul(delayStr);
             Utils::sleepMs(delayMs);
             if (!g_running.load()) break; // Exit if system is shutting down
 
@@ -228,7 +225,7 @@ int main() {
         
         auto activeProfile = std::make_shared<DriverProfile>();
         std::vector<std::string> availableProfiles = {"eco_mode", "sport_mode", "comfort_mode"};
-        int currentProfileIdx = 0;
+        uint32_t currentProfileIdx = 0;
 
         // Try to find active profile in list to set initial index
         std::string profileName = config.getActiveProfile();
@@ -284,7 +281,7 @@ int main() {
         Dashboard dashboard;
         VehicleStatistics stats;
         
-        int dashInterval = config.getInt("application", "update_interval_ms", 2000);
+        uint32_t dashInterval = config.getUint32("application", "update_interval_ms", 2000);
         dashboard.setRefreshRate(dashInterval);
 
         // ===== Phase 6: Event Logger (RAII) =====
@@ -301,7 +298,7 @@ int main() {
         // ===== Phase 7: Watchdog Health Monitor =====
         std::cout << "[INIT] Starting watchdog health monitor...\n";
         
-        int watchdogTimeout = config.getInt("watchdog", "thread_timeout_ms", 5000);
+        uint32_t watchdogTimeout = config.getUint32("watchdog", "thread_timeout_ms", 5000);
         Watchdog watchdog(watchdogTimeout);
         std::cout << "[INIT] Watchdog timeout: " << watchdogTimeout << "ms\n";
 
@@ -313,7 +310,7 @@ int main() {
                                      activeProfile);
         
         // Apply configured intervals
-        int sensorInterval = config.getInt("sensors", "update_interval_ms", 500);
+        uint32_t sensorInterval = config.getUint32("sensors", "update_interval_ms", 500);
         threadManager.setSensorInterval(sensorInterval);
         threadManager.setMonitoringInterval(1000);
         threadManager.setDashboardInterval(dashInterval);
@@ -328,17 +325,8 @@ int main() {
         // Start all 4 worker threads
         threadManager.start();
 
-        // ===== START =====
-        std::cout << "\n[SYSTEM] All subsystems initialized. Starting threads...\n";
-        std::cout << "[SYSTEM] Press Ctrl+C for graceful shutdown.\n\n";
-        
-        logger.logEvent(AlertSeverity::INFO, "System startup complete", "MAIN");
-        
-        // Start all 4 worker threads
-        threadManager.start();
-
-        // Add this to store our asynchronous test scripts!
-        std::vector<std::future<void>> scriptFutures;
+        // FIX: Replaced std::future container with a std::thread container
+        std::vector<std::thread> scriptThreads;
 
         // ===== Main Loop (waits for shutdown signal + keyboard input) =====
         while (g_running.load()) {
@@ -364,10 +352,8 @@ int main() {
                         g_running.store(false);
                     } else if (c == 't' || c == 'T') {
                         std::string scriptPath = dataDir + "/test_scenario.csv";
-                        // Launch the scenario player asynchronously instead of using std::thread
-                        scriptFutures.push_back(
-                            std::async(std::launch::async, playTestScenario, scriptPath, std::ref(sensors), std::ref(logger))
-                        );
+                        // FIX: Changed from std::async to spawning an explicit std::thread
+                        scriptThreads.emplace_back(playTestScenario, scriptPath, std::ref(sensors), std::ref(logger));
                     }
 
                 }
@@ -387,6 +373,13 @@ int main() {
         
         threadManager.stop();
         
+        // FIX: Clean up and join all manually spawned scenario test threads safely
+        for (auto& t : scriptThreads) {
+            if (t.joinable()) {
+                t.join();
+            }
+        }
+
         // Process remaining log entries
         logger.processQueue();
         logger.flush();
@@ -402,7 +395,6 @@ int main() {
         std::cout << "Log Entries:      " << logger.getTotalLogCount() << "\n";
 
         // --- STL algorithm + Lambda: Search event log for CRITICAL entries ---
-        // Demonstrates: std::function, lambda predicate, EventLogger::searchEvents
         auto criticalEvents = logger.searchEvents(
             [](const LogEntry& entry) {
                 return entry.severity == AlertSeverity::CRITICAL;

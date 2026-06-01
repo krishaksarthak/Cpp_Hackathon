@@ -9,6 +9,7 @@
 #include <functional>
 #include <iostream>
 #include <csignal>
+#include <cstdint>
 #include "common/Types.hpp"
 #include "common/Utils.hpp"
 #include "sensors/Sensor.hpp"
@@ -90,10 +91,10 @@ public:
     static std::atomic<bool>& getGlobalRunningFlag();
 
     /** @brief Set update intervals */
-    void setSensorInterval(int ms) { m_sensorUpdateIntervalMs = ms; }
-    void setMonitoringInterval(int ms) { m_monitoringIntervalMs = ms; }
-    void setDashboardInterval(int ms) { m_dashboardIntervalMs = ms; }
-    void setLoggerInterval(int ms) { m_loggerIntervalMs = ms; }
+    void setSensorInterval(uint32_t ms) { m_sensorUpdateIntervalMs = ms; }
+    void setMonitoringInterval(uint32_t ms) { m_monitoringIntervalMs = ms; }
+    void setDashboardInterval(uint32_t ms) { m_dashboardIntervalMs = ms; }
+    void setLoggerInterval(uint32_t ms) { m_loggerIntervalMs = ms; }
 
 private:
     /**
@@ -141,10 +142,10 @@ private:
     std::mutex m_sensorMutex;
 
     // Configurable intervals
-    int m_sensorUpdateIntervalMs;
-    int m_monitoringIntervalMs;
-    int m_dashboardIntervalMs;
-    int m_loggerIntervalMs;
+    uint32_t m_sensorUpdateIntervalMs;
+    uint32_t m_monitoringIntervalMs;
+    uint32_t m_dashboardIntervalMs;
+    uint32_t m_loggerIntervalMs;
 };
 
 } // namespace VehicleSystem

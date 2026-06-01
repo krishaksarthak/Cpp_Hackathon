@@ -4,6 +4,7 @@
 #include <mutex>
 #include "common/JsonParser.hpp"
 #include "common/Types.hpp"
+#include <cstdint>
 
 namespace VehicleSystem {
 
@@ -52,7 +53,9 @@ public:
 
     // --- Typed getters with section/key access ---
 
-    int getInt(const std::string& section, const std::string& key, int defaultVal = 0) const;
+    int32_t getInt(const std::string& section, const std::string& key, int32_t defaultVal = 0) const;
+
+    uint32_t getUint32(const std::string& section, const std::string& key, uint32_t defaultVal = 0) const;
 
     double getDouble(const std::string& section, const std::string& key, double defaultVal = 0.0) const;
 

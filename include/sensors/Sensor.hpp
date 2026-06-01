@@ -6,6 +6,7 @@
 #include <mutex>
 #include <sstream>
 #include <iomanip>
+#include <cstdint>
 #include "common/Types.hpp"
 #include "common/Utils.hpp"
 
@@ -84,7 +85,7 @@ public:
     std::string getStatusString() const;
 
     // --- Static Members ---
-    static int getSensorCount();
+    static uint32_t getSensorCount();
 
 protected:
     SensorID m_id;
@@ -97,7 +98,7 @@ protected:
     bool m_isForced = false;
 
     /** @brief Static member tracking total sensor instances (RAII) */
-    static int s_sensorCount;
+    static uint32_t s_sensorCount;
 };
 
 } // namespace VehicleSystem

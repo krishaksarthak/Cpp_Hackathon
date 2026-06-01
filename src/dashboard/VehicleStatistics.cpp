@@ -77,7 +77,7 @@ double VehicleStatistics::getTotalDistance() const {
     return m_totalDistance;
 }
 
-std::map<std::string, int> VehicleStatistics::getAlertFrequency() const {
+std::map<std::string, uint32_t> VehicleStatistics::getAlertFrequency() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_alertFrequency;
 }
@@ -98,9 +98,9 @@ std::string VehicleStatistics::getUptime() const {
     auto now = std::chrono::steady_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(
         now - m_startTime).count();
-    int hours = static_cast<int>(elapsed / 3600);
-    int minutes = static_cast<int>((elapsed % 3600) / 60);
-    int seconds = static_cast<int>(elapsed % 60);
+    uint32_t hours = static_cast<uint32_t>(elapsed / 3600);
+    uint32_t minutes = static_cast<uint32_t>((elapsed % 3600) / 60);
+    uint32_t seconds = static_cast<uint32_t>(elapsed % 60);
 
     std::ostringstream oss;
     oss << std::setfill('0') << std::setw(2) << hours << ":"

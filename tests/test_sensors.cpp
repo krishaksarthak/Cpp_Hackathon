@@ -62,7 +62,7 @@ void testBaseSensorClass() {
     PASS()
 
     TEST("Static sensor count tracking")
-        int initialCount = Sensor::getSensorCount();
+        uint32_t initialCount = Sensor::getSensorCount();
         {
             EngineTemperatureSensor temp;
             BatterySensor batt;
