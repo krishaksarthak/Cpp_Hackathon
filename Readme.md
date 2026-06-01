@@ -3,7 +3,6 @@
 
 ![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
 ![C++](https://img.shields.io/badge/C%2B%2B-17-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
 
 ---
 
@@ -256,7 +255,7 @@ Edit `data/config.json`:
 
 ## 📝 License
 
-MIT License - See LICENSE file for details
+MIT License — no LICENSE file is included in this repository
 
 ---
 
