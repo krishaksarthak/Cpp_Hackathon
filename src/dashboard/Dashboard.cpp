@@ -172,7 +172,7 @@ void Dashboard::displayWatchdog(std::ostringstream& oss, const Watchdog& watchdo
 void Dashboard::displayFooter(std::ostringstream& oss) {
     oss << Colors::CYAN << "\n========================================\n";
     oss << "Last Updated: " << Utils::getCurrentTimestamp() << "\n";
-    oss << "Press Ctrl+C or 'q' to exit | 'p' to switch profile\n";
+    oss << "Press Ctrl+C or 'q' to exit | 'p' to switch profile | 't' to use user inputs\n";
     oss << "========================================\n" << Colors::RESET;
 }
 
